@@ -1,6 +1,6 @@
 #include <iostream>
 #include <algorithm>
-#include <vector>
+#include <cstring>
 
 using namespace std;
 using ll = long long;
@@ -8,44 +8,61 @@ using Pii = pair <int, int>;
 using Pll = pair <ll, ll>;
 const int kMaxN = 1e5 + 5, kMod = 1e9 + 7, kInf = 1e9;
 
-vector <int> edge[kMaxN];
-int n, m, tag1, tag2, tag, sum = 1, top, stack[kMaxN], indeg[kMaxN], outdeg[kMaxN], nxt[kMaxN];
-void DFS (int now) {
-  for (int i = nxt[now]; i < edge[now].size (); i = nxt[now]) {
-    nxt[now] = i + 1;
-    DFS (edge[now][i]);
+int n, m, cost[kMaxN], head[kMaxN], to[kMaxN << 2], nxt[kMaxN << 2], tot;
+void add (int from, int to_) {
+  to[++tot] = to_, nxt[tot] = head[from];
+  head[from] = tot;
+}
+int dfn[kMaxN], low[kMaxN], mincost[kMaxN], co[kMaxN], num[kMaxN], stack[kMaxN], col = 1, maxdfn = 1, top;
+void tarjan (int now) {
+  dfn[now] = low[now] = maxdfn++;
+  stack[top++] = now;
+  for (int i = head[now]; ~i; i = nxt[i]) {
+    if (!dfn[to[i]]) {
+      tarjan (to[i]);
+      low[now] = min (low[now], low[to[i]]);
+    } else if (!co[to[i]]) {
+      low[now] = min (low[now], dfn[to[i]]);
+    }
   }
-  stack[++top] = now;
+  if (dfn[now] == low[now]) {
+    mincost[col] = cost[now], num[col] = 1;
+    while (stack[--top] != now) {
+      co[stack[top]] = col;
+      if (cost[stack[top]] < mincost[col]) {
+        mincost[col] = cost[stack[top]];
+        num[col] = 1;
+      } else if (cost[stack[top]] == mincost[col]) {
+        num[col]++;
+      }
+    }
+    co[now] = col++;
+  }
 }
 int main () {
   ios :: sync_with_stdio (false);
   cin.tie (0), cout.tie (0);
 
-  cin >> n >> m;
+  memset (head, -1, sizeof (head));
+  cin >> n;
+  for (int i = 1; i <= n; i++) {
+    cin >> cost[i];
+  }
+  cin >> m;
   for (int i = 1, from, to; i <= m; i++) {
     cin >> from >> to;
-    edge[from].push_back (to);
-    outdeg[from]++, indeg[to]++;
+    add (from, to);
   }
   for (int i = 1; i <= n; i++) {
-    if (indeg[i] == outdeg[i] - 1) {
-      tag1++, sum = i;
-    } else if (outdeg[i] == indeg[i] - 1) {
-      tag2++;
-    } else if (indeg[i] != outdeg[i]) {
-      tag = 1;
+    if (!co[i]) {
+      tarjan (i);
     }
   }
-  if (tag && !(tag1 == 1 && tag2 == 1)) {
-    cout << "No" << '\n';
-    return 0;
+  ll ans = 0, sum = 1;
+  for (int i = 1; i < col; i++) {
+    ans += mincost[i];
+    sum = sum * num[i] % kMod;
   }
-  for (int i = 1; i <= n; i++) {
-    sort (edge[i].begin (), edge[i].end ());
-  }
-  DFS (sum);
-  for (int i = top; i >= 1; i--) {
-    cout << stack[i] << ' ';
-  }
+  cout << ans << ' ' << sum << '\n';
   return 0;
 }
