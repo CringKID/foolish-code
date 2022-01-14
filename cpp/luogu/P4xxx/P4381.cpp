@@ -101,7 +101,12 @@ ll solve (vector <Node*> &circle, vector <ll> &ndist) {
     while (!dq.empty () && i - dq.front () >= n) {
       dq.pop_front ();
     }
+    res = max (res, arr[dq.front ()] + arr[i] + dist[i - 1] - dist[dq.front () - 1]);
+    while (!dq.empty () && arr[i] - dist[i - 1] >= arr[dq.back ()] - dist[dq.back () - 1]) {
+      dq.pop_back ();
+    }
   }
+  return res;
 }
 int main () {
   ios :: sync_with_stdio (false);
