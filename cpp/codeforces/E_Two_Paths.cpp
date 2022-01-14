@@ -44,7 +44,7 @@ void build(int i, vector<int> & ans, int cur = -1) {
   }
 }
 
-void outp(vector <int> & ans) {
+void output (vector <int> & ans) {
   cout << ans.size() << '\n';
   for (int i = 0; i < ans.size(); i++)
     cout << ans[i] << '\n';
@@ -53,8 +53,8 @@ void outp(vector <int> & ans) {
 int main() {
   ios :: sync_with_stdio (false);
   cin.tie (0), cout.tie (0);
-  // freopen("input.txt", "r", stdin);
-  // freopen("output.txt", "w", stdout);
+  freopen("input.txt", "r", stdin);
+  freopen("output.txt", "w", stdout);
 
   cin >> m, n = 10000;
   if (m < 2) {
@@ -151,15 +151,15 @@ int main() {
       }
       int i; for (i = 0; i < v1.size (); i++) {
         if (v1[i] > m) {
-          for (int j = i + 1; j < v1.size(); j++)
-            v2.push_back(v1[j]);
+          for (int j = i + 1; j < v1.size (); j++) {
+            v2.push_back (v1[j]);
+          }
           break;
         }
       }
-      v1.erase(v1.begin() + i, v1.end());
+      v1.erase (v1.begin () + i, v1.end ());
     }
   }
-  outp(v1);
-  outp(v2);
+  output (v1), output (v2);
   return 0;
 }
