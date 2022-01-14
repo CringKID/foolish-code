@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <deque>
 #include <list>
 
 using ll = long long;
@@ -84,10 +85,22 @@ struct Node {
 
 using namespace std;
 ll *arr, *dist;
-ll solve (vector <Node*> &circle, vector <ll> &dist) {
+ll solve (vector <Node*> &circle, vector <ll> &ndist) {
   ll n = circle.size (), res = 0;
   for (int i = 0; i < n; i++) {
-    
+    arr[i] = arr[i + n] = circle[i] -> height;
+    dist[i] = dist[i + n] = ndist[i];
+    res = max (res, circle[i] -> res);
+  }
+  for (int i = 1; i < (n << 1); i++) {
+    dist[i] += dist[i - 1];
+  }
+  deque <int> dq;
+  dq.push_back (0);
+  for (int i = 1; i < (n << 1); i++) {
+    while (!dq.empty () && i - dq.front () >= n) {
+      dq.pop_front ();
+    }
   }
 }
 int main () {
