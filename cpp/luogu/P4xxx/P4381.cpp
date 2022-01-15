@@ -33,7 +33,7 @@ struct Node {
     node -> list.push_back (edge);
   }
 
-  bool findcircle (Edge *edge, vector <Node*> &circle, vector <ll> dist) {
+  bool findcircle (Edge *edge, vector <Node*> &circle, vector <ll> &dist) {
     if (!tag) {
       circle.push_back (this);
       dist.push_back (edge -> dist);
@@ -105,6 +105,7 @@ ll solve (vector <Node*> &circle, vector <ll> &ndist) {
     while (!dq.empty () && arr[i] - dist[i - 1] >= arr[dq.back ()] - dist[dq.back () - 1]) {
       dq.pop_back ();
     }
+    dq.push_back (i);
   }
   return res;
 }
@@ -112,6 +113,32 @@ int main () {
   ios :: sync_with_stdio (false);
   cin.tie (0), cout.tie (0);
 
-  
+  int n;
+  cin >> n;
+  node = new Node*[n + 1];
+  for (int i = 0; i <= n; i++) {
+    node[i] = new Node ();
+  }
+  for (int i = 1; i <= n; i++) {
+    int edge, dist;
+    cin >> edge >> dist;
+    node[i] -> connect (node[edge], dist);
+  }
+  arr = new ll[n << 1], dist = new ll[n << 1 | 1];
+  *(dist++) = 0;
+  ll ans = 0;
+  for (int i = 1; i <= n; i++) {
+    if (!node[i] -> tag) {
+      continue;
+    }
+    vector <Node*> circle;
+    vector <ll> dist;
+    node[i] -> findcircle (NULL, circle, dist);
+    for (Node* node : circle) {
+      node -> InitAsATree (NULL);
+    }
+    ans += solve (circle, dist);
+  }
+  cout << ans << '\n';
   return 0;
 }
