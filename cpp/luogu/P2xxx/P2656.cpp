@@ -13,7 +13,7 @@ void add (int from, int to_, int val) {
   to[++tot] = to, edge[tot] = val;
   nxt[tot] = head[from], head[from] = tot;
 }
-int dfn[kMaxN], num, low[kMaxN], top, status[kMaxN], cnt, 
+int dfn[kMaxN], num, low[kMaxN], top, status[kMaxN], cnt;
 int main () {
   ios :: sync_with_stdio (false);
   cin.tie (0), cout.tie (0);
