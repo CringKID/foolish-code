@@ -28,9 +28,14 @@ int check (int now) {
   }
   return ans;
 }
+//#define contest
 int main () {
   ios :: sync_with_stdio (false);
   cin.tie (0), cout.tie (0);
+#ifdef contest
+  freopen (, , stdin);
+  freopen (, , stdout);
+#endif
 
   cin >> n;
   for (int i = 1; i <= n; i++) {
