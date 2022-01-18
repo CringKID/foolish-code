@@ -1,67 +1,86 @@
-#include <bits/stdc++.h>
-using namespace std;
-namespace gengyf {
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
 #define ll long long
-const int maxn = 1e6 + 10;
-inline ll read() {
-  ll x = 0, f = 1;
-  char c = getchar();
-  while (c < '0' || c > '9') {
-    if (c == '-') f = -1;
-    c = getchar();
-  }
-  while (c >= '0' && c <= '9') {
-    x = (x * 10) + c - '0';
-    c = getchar();
-  }
-  return x * f;
+using namespace std;
+
+const int N = 100000 + 10;
+
+inline int read()
+{
+	int res=0;
+	char ch=getchar();
+	while(ch<'0'||ch>'9')ch=getchar();
+	while(ch>='0'&&ch<='9')res=(res<<1)+(res<<3)+(ch^48),ch=getchar();
+	return res;
 }
-ll n, k, m, a[maxn], t[maxn];
-int f[maxn][2], g[maxn];
-int main() {
-  n = read();
-  k = read();
-  m = read();
-  for (int i = 1; i <= n; i++) {
-    a[i] = read();
-  }
-  ll l = 1, r = k + 1, lim = log2(m) + 1;
-  for (int i = 1; i <= n; i++) {
-    while (r < n && a[r + 1] - a[i] < a[i] - a[l]) {
-      l++, r++;
-    }
-    f[i][0] = (a[r] - a[i] > a[i] - a[l] ? r : l);
-  }
-  if (m & 1) {
-    for (int i = 1; i <= n; i++) {
-      g[i] = f[i][0];
-    }
-  } else {
-    for (int i = 1; i <= n; i++) {
-      g[i] = i;
-    }
-  }
-  r = 1;
-  t[0] = 1;
-  for (int i = 1; i <= lim; i++) t[i] = t[i - 1] << 1;
-  for (int j = 1; j <= lim; j++) {
-    for (int i = 1; i <= n; i++) {
-      f[i][r] = f[f[i][r ^ 1]][r ^ 1];
-    }
-    if (m & t[j]) {
-      for (int i = 1; i <= n; i++) {
-        g[i] = f[g[i]][r];
-      }
-    }
-    r ^= 1;
-  }
-  for (int i = 1; i <= n; i++) {
-    printf("%d ", g[i]);
-  }
-  return 0;
+
+int a[N];
+
+ll sum[N],t[N<<2],lazy[N<<2];
+#define lson pos<<1
+#define rson pos<<1|1
+#define mid ((l+r)>>1)
+void pushdown(int pos,int l,int r)
+{
+	lazy[lson]+=lazy[pos],lazy[rson]+=lazy[pos];
+	t[lson]+=1ll*(mid-l+1)*lazy[pos],t[rson]+=1ll*(r-mid)*lazy[pos];
+	lazy[pos]=0;
 }
-}  // namespace gengyf
-signed main() {
-  gengyf::main();
-  return 0;
+
+void change(int pos,int l,int r,int L,int R,int k)
+{
+	if(l>=L&&r<=R)
+	{
+		lazy[pos]+=k;
+		t[pos]+=1ll*k*(r-l+1);
+		return ;
+	}
+	if(lazy[pos])
+		pushdown(pos,l,r);
+	if(L<=mid)
+		change(lson,l,mid,L,R,k);
+	if(R>mid)
+		change(rson,mid+1,r,L,R,k);
+	t[pos]=t[lson]+t[rson];
+}
+
+ll query(int pos,int l,int r,int L,int R)
+{
+	if(l>=L&&r<=R)
+		return t[pos];
+	pushdown(pos,l,r);
+	if(R<=mid)
+		return query(lson,l,mid,L,R);
+	else if(L>mid)
+		return query(rson,mid+1,r,L,R);
+	return query(lson,l,mid,L,R)+query(rson,mid+1,r,L,R);
+}
+
+string opt;
+
+int main()
+{
+	int n=read(),m=read(),x,y;
+	for(int i=1;i<=n;i++)
+		a[i]=read(),sum[i]=a[i]+sum[i-1];
+	for(int i=2;i<=n;i++)
+		sum[i]+=sum[i-1];
+	while(m--)
+	{
+		cin>>opt;
+		if(opt=="Query")
+		{
+			x=read();
+			printf("%lld\n",1ll*sum[x]+query(1,1,n,1,x));
+		}
+		if(opt=="Modify")
+		{
+			x=read(),y=read();
+			change(1,1,n,x,n,y-a[x]);
+			a[x]=y;
+		}
+	}
+	return 0;
 }
