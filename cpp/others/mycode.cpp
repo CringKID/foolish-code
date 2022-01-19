@@ -1,76 +1,98 @@
+// 狂狼电竞俱乐部 | 胖头鱼
 #include <algorithm>
-#include <cstdio>
-#include <cstring>
 #include <iostream>
-#define ll long long
+
 using namespace std;
 
-const int N = 100000 + 10;
+const int kMaxN = 1e5 + 1, kInf = 1e9;
 
-inline int read() {
-  int res = 0;
-  char ch = getchar();
-  while (ch < '0' || ch > '9') ch = getchar();
-  while (ch >= '0' && ch <= '9') res = (res << 1) + (res << 3) + (ch ^ 48), ch = getchar();
-  return res;
+struct V {
+  int v, t, l, r;  // 值、子树大小、左右儿子
+} v[kMaxN];
+int n, r, m, o, x, y;
+
+void ReCalc(int x) {                              // 重新计算节点
+  v[x].t = v[v[x].l].t + v[v[x].r].t + (x != 0);  // 空节点不计算
 }
 
-int a[N];
-
-ll sum[N], t[N << 2], lazy[N << 2];
-#define lson pos << 1
-#define rson pos << 1 | 1
-#define mid ((l + r) >> 1)
-void pushdown(int pos, int l, int r) {
-  lazy[lson] += lazy[pos], lazy[rson] += lazy[pos];
-  t[lson] += 1ll * (mid - l + 1) * lazy[pos], t[rson] += 1ll * (r - mid) * lazy[pos];
-  lazy[pos] = 0;
-}
-
-void change(int pos, int l, int r, int L, int R, int k) {
-  if (l >= L && r <= R) {
-    lazy[pos] += k;
-    t[pos] += 1ll * k * (r - l + 1);
-    return;
+void Insert(int &x) {     // 插入
+  if (!x) {               // 遇到空节点
+    x = ++m, v[x].v = y;  // 生成新节点并记录值
+  } else {                // 插入到子树中
+    Insert(y < v[x].v ? v[x].l : v[x].r);
   }
-  if (lazy[pos])
-    pushdown(pos, l, r);
-  if (L <= mid)
-    change(lson, l, mid, L, R, k);
-  if (R > mid)
-    change(rson, mid + 1, r, L, R, k);
-  t[pos] = t[lson] + t[rson];
+  ReCalc(x);
 }
 
-ll query(int pos, int l, int r, int L, int R) {
-  if (l >= L && r <= R)
-    return t[pos];
-  pushdown(pos, l, r);
-  if (R <= mid)
-    return query(lson, l, mid, L, R);
-  else if (L > mid)
-    return query(rson, mid + 1, r, L, R);
-  return query(lson, l, mid, L, R) + query(rson, mid + 1, r, L, R);
+int Replace(int &x) {  // 左子树中寻找替换删除节点
+  int t = v[x].v;      // 记录当前节点的值
+  if (!v[x].r) {       // 没有右儿子
+    x = v[x].l;        // 删除当前节点
+  } else {
+    t = Replace(v[x].r);  // 到右子树中删除
+    ReCalc(x);
+  }
+  return t;
 }
 
-string opt;
+void Delete(int &x) {          // 删除节点
+  if (y == v[x].v) {           // 找到值
+    if (!v[x].l || !v[x].r) {  // 最多有一个儿子
+      x = v[x].l + v[x].r;     // 直接删除
+    } else {
+      v[x].v = Replace(v[x].l);  // 寻找替代值
+    }
+  } else {
+    Delete(y < v[x].v ? v[x].l : v[x].r);
+  }
+  ReCalc(x);
+}
+
+int FindR(int x) {  // 查询比y小的数的个数
+  if (!x) {
+    return 0;
+  }
+  return v[x].v >= y ? FindR(v[x].l) : FindR(v[x].r) + v[v[x].l].t + 1;
+}
+
+int FindV(int x, int y) {
+  int t = v[v[x].l].t;
+  if (y == t + 1) {  // 刚好等于根
+    return v[x].v;
+  }
+  return y <= t ? FindV(v[x].l, y) : FindV(v[x].r, y - t - 1);
+}
+
+int FindP(int x) {  // 寻找前驱
+  if (!x) {
+    return -kInf;
+  }
+  return v[x].v < y ? max(v[x].v, FindP(v[x].r)) : FindP(v[x].l);
+}
+
+int FindS(int x) {  // 寻找后继
+  if (!x) {
+    return kInf;
+  }
+  return v[x].v > y ? min(v[x].v, FindS(v[x].l)) : FindS(v[x].r);
+}
 
 int main() {
-  int n = read(), m = read(), x, y;
-  for (int i = 1; i <= n; i++)
-    a[i] = read(), sum[i] = a[i] + sum[i - 1];
-  for (int i = 2; i <= n; i++)
-    sum[i] += sum[i - 1];
-  while (m--) {
-    cin >> opt;
-    if (opt == "Query") {
-      x = read();
-      printf("%lld\n", 1ll * sum[x] + query(1, 1, n, 1, x));
-    }
-    if (opt == "Modify") {
-      x = read(), y = read();
-      change(1, 1, n, x, n, y - a[x]);
-      a[x] = y;
+  cin >> n;
+  for (int i = 1; i <= n; i++) {
+    cin >> o >> y;
+    if (o == 1) {
+      Insert(r);
+    } else if (o == 2) {
+      Delete(r);
+    } else if (o == 3) {
+      cout << FindR(r) + 1 << '\n';
+    } else if (o == 4) {
+      cout << FindV(r, y) << '\n';
+    } else if (o == 5) {
+      cout << FindP(r) << '\n';
+    } else {
+      cout << FindS(r) << '\n';
     }
   }
   return 0;
