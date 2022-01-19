@@ -1,98 +1,125 @@
-// 狂狼电竞俱乐部 | 胖头鱼
-#include <algorithm>
-#include <iostream>
-
+#include <bits/stdc++.h>
 using namespace std;
-
-const int kMaxN = 1e5 + 1, kInf = 1e9;
-
-struct V {
-  int v, t, l, r;  // 值、子树大小、左右儿子
-} v[kMaxN];
-int n, r, m, o, x, y;
-
-void ReCalc(int x) {                              // 重新计算节点
-  v[x].t = v[v[x].l].t + v[v[x].r].t + (x != 0);  // 空节点不计算
+struct node {
+  int son[2], size, times, rd, val;
+} tree[1000000];
+int root, size, m, ans;
+void update(int k) {
+  tree[k].size = tree[tree[k].son[0]].size + tree[tree[k].son[1]].size + tree[k].times;
+  return;
 }
-
-void Insert(int &x) {     // 插入
-  if (!x) {               // 遇到空节点
-    x = ++m, v[x].v = y;  // 生成新节点并记录值
-  } else {                // 插入到子树中
-    Insert(y < v[x].v ? v[x].l : v[x].r);
+void zag(int &k) {
+  int rson = tree[k].son[1];
+  tree[k].son[1] = tree[rson].son[0];
+  tree[rson].son[0] = k;
+  tree[rson].size = tree[k].size;
+  update(k);
+  k = rson;
+}
+void zig(int &k) {
+  int lson = tree[k].son[0];
+  tree[k].son[0] = tree[lson].son[1];
+  tree[lson].son[1] = k;
+  tree[lson].size = tree[k].size;
+  update(k);
+  k = lson;
+}
+void insert(int &k, int x) {
+  if (k == 0) {
+    size++;
+    k = size;
+    tree[k].size = 1;
+    tree[k].times = 1;
+    tree[k].val = x;
+    tree[k].rd = rand();
+    return;
   }
-  ReCalc(x);
-}
-
-int Replace(int &x) {  // 左子树中寻找替换删除节点
-  int t = v[x].v;      // 记录当前节点的值
-  if (!v[x].r) {       // 没有右儿子
-    x = v[x].l;        // 删除当前节点
-  } else {
-    t = Replace(v[x].r);  // 到右子树中删除
-    ReCalc(x);
+  tree[k].size++;
+  if (tree[k].val == x) {
+    tree[k].times++;
+    return;
   }
-  return t;
+  if (tree[k].val < x) {
+    insert(tree[k].son[1], x);
+    if (tree[tree[k].son[1]].rd < tree[k].rd) zag(k);
+  }
+  if (tree[k].val > x) {
+    insert(tree[k].son[0], x);
+    if (tree[tree[k].son[0]].rd < tree[k].rd) zig(k);
+  }
 }
-
-void Delete(int &x) {          // 删除节点
-  if (y == v[x].v) {           // 找到值
-    if (!v[x].l || !v[x].r) {  // 最多有一个儿子
-      x = v[x].l + v[x].r;     // 直接删除
-    } else {
-      v[x].v = Replace(v[x].l);  // 寻找替代值
+void del(int &k, int x) {
+  if (tree[k].val == x) {
+    if (tree[k].times > 1) {
+      tree[k].times--;
+      tree[k].size--;
+      return;
     }
-  } else {
-    Delete(y < v[x].v ? v[x].l : v[x].r);
-  }
-  ReCalc(x);
-}
-
-int FindR(int x) {  // 查询比y小的数的个数
-  if (!x) {
-    return 0;
-  }
-  return v[x].v >= y ? FindR(v[x].l) : FindR(v[x].r) + v[v[x].l].t + 1;
-}
-
-int FindV(int x, int y) {
-  int t = v[v[x].l].t;
-  if (y == t + 1) {  // 刚好等于根
-    return v[x].v;
-  }
-  return y <= t ? FindV(v[x].l, y) : FindV(v[x].r, y - t - 1);
-}
-
-int FindP(int x) {  // 寻找前驱
-  if (!x) {
-    return -kInf;
-  }
-  return v[x].v < y ? max(v[x].v, FindP(v[x].r)) : FindP(v[x].l);
-}
-
-int FindS(int x) {  // 寻找后继
-  if (!x) {
-    return kInf;
-  }
-  return v[x].v > y ? min(v[x].v, FindS(v[x].l)) : FindS(v[x].r);
-}
-
-int main() {
-  cin >> n;
-  for (int i = 1; i <= n; i++) {
-    cin >> o >> y;
-    if (o == 1) {
-      Insert(r);
-    } else if (o == 2) {
-      Delete(r);
-    } else if (o == 3) {
-      cout << FindR(r) + 1 << '\n';
-    } else if (o == 4) {
-      cout << FindV(r, y) << '\n';
-    } else if (o == 5) {
-      cout << FindP(r) << '\n';
+    if (tree[k].son[0] * tree[k].son[1] == 0)
+      k = tree[k].son[0] + tree[k].son[1];
+    else if (tree[tree[k].son[0]].rd < tree[tree[k].son[1]].rd) {
+      zig(k);
+      del(k, x);
     } else {
-      cout << FindS(r) << '\n';
+      zag(k);
+      del(k, x);
+    }
+  } else if (tree[k].val > x) {
+    tree[k].size--;
+    del(tree[k].son[0], x);
+  } else {
+    tree[k].size--;
+    del(tree[k].son[1], x);
+  }
+}
+int ph1(int &k, int x) {
+  if (k == 0) return 0;
+  if (tree[k].val == x) return tree[tree[k].son[0]].size + 1;
+  if (tree[k].val < x) return tree[tree[k].son[0]].size + tree[k].times + ph1(tree[k].son[1], x);
+  if (tree[k].val > x) return ph1(tree[k].son[0], x);
+}
+int ph2(int &k, int x) {
+  if (x <= tree[tree[k].son[0]].size)
+    return ph2(tree[k].son[0], x);
+  if (x > tree[tree[k].son[0]].size + tree[k].times) return ph2(tree[k].son[1], x - tree[tree[k].son[0]].size - tree[k].times);
+  return tree[k].val;
+}
+void min_max(int &k, int x) {
+  if (k == 0) return;
+  if (tree[k].val < x) {
+    ans = k;
+    min_max(tree[k].son[1], x);
+  } else
+    min_max(tree[k].son[0], x);
+}
+void max_min(int &k, int x) {
+  if (k == 0) return;
+  if (tree[k].val > x) {
+    ans = k;
+    max_min(tree[k].son[0], x);
+  } else
+    max_min(tree[k].son[1], x);
+}
+int main() {
+  int f, x;
+  scanf("%d", &m);
+  for (int i = 1; i <= m; i++) {
+    scanf("%d %d", &f, &x);
+    ans = 0;
+    if (f == 1)
+      insert(root, x);
+    else if (f == 2)
+      del(root, x);
+    else if (f == 3)
+      printf("%d\n", ph1(root, x));
+    else if (f == 4)
+      printf("%d\n", ph2(root, x));
+    else if (f == 5) {
+      min_max(root, x);
+      printf("%d\n", tree[ans].val);
+    } else if (f == 6) {
+      max_min(root, x);
+      printf("%d\n", tree[ans].val);
     }
   }
   return 0;
