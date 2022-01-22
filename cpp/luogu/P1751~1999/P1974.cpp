@@ -9,7 +9,7 @@ using Pll = pair <ll, ll>;
 const int kMaxN = 1e4 + 5, kMod = 1e9 + 7, kInf = 1e9;
 
 struct Number {
-  int len, arr[kMaxN << 1];
+  int len, arr[3225];
   Number () {
     fill (arr, arr + len + 1, 0), len = 0;
   }
@@ -61,8 +61,8 @@ int main () {
   freopen (, , stdout);
 #endif
 
-  cin >> n;
   Pii ans;
+  cin >> n;
   Number now; now.arr[now.len++] = 1;
   for (int i = 1; i <= n; i++) {
     que.push (i);
