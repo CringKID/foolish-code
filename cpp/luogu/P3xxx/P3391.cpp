@@ -54,10 +54,10 @@ void DFSprint (int sum) {
   if (!sum) {
     return ;
   }
-  Checkrotate (x);
-  DFSprint (tree[x].son[0]);
-  cout << tree[x].value << ' ';
-  DFSprint (tree[x].son[1]);
+  Checkrotate (sum);
+  DFSprint (tree[sum].son[0]);
+  cout << tree[sum].value << ' ';
+  DFSprint (tree[sum].son[1]);
 }
 //#define contest
 int main () {
@@ -81,7 +81,7 @@ int main () {
     tree[tree[tree[r].son[0]].son[1]].rotate ^= 1;
   }
   target = r, Rankfind (r, n + 2);
-  target = tree[r].son[1], Rankfind (tree[r].son[0], 1);
+  target = tree[r].son[0], Rankfind (tree[r].son[0], 1);
   DFSprint (tree[tree[r].son[0]].son[1]);
   return 0;
 }
