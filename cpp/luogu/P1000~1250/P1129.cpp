@@ -1,51 +1,72 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
 
 using namespace std;
+using ll = long long;
+using Pii = pair <int, int>;
+using Pll = pair <ll, ll>;
+const int kMaxN = 405, kMaxM = 8e4 + 5;
 
-const int maxn = 405;
-
-int Head[maxn * maxn], To[maxn * maxn], Next[maxn * maxn], Tot = 1, Ans, Connect[maxn], Vis[maxn], n, T;
-void Add(int from, int to) { To[++Tot] = to, Next[Tot] = Head[from], Head[from] = Tot; }
-
-bool DFS(int Now) {
-  for (int i = Head[Now], to; i; i = Next[i])
-    if (!Vis[to = To[i]]) {
-      Vis[to] = 1;
-      if (!Connect[to] || DFS(Connect[to])) {
-        Connect[to] = Now;
+struct Edge {
+  int to, next;
+} edge[kMaxM];
+int head[kMaxM], tot, ans, cur[kMaxN], n, T;
+bool vis[kMaxN];
+void add (int from, int to) {
+  edge[++tot] = {to, head[from]};
+  head[from] = tot;
+}
+bool DFS (int now) {
+  for (int i = head[now], to; i; i = edge[i].next) {
+    to = edge[i].to;
+    if (!vis[to]) {
+      vis[to] = 1;
+      if (!cur[to] || DFS (cur[to])) {
+        cur[to] = now;
         return true;
       }
     }
+  }
   return false;
 }
-void Clear() {
-  Ans = 0;
-  for (int i = 1; i <= Tot; i++) To[i] = Head[i] = Next[i] = 0;
-  Tot = 1;
-  for (int i = 0; i <= n << 1; i++) Connect[i] = 0;
-}
+//#define contest
+int main () {
+  ios :: sync_with_stdio (false);
+  cin.tie (0), cout.tie (0);
+#ifdef contest
+  freopen (, , stdin);
+  freopen (, , stdout);
+#endif
 
-int main() {
-  scanf("%d", &T);
+  cin >> T;
   while (T--) {
-    scanf("%d", &n);
-    for (int i = 1; i <= n; i++)
-      for (int j = 1, Temp; j <= n; j++) {
-        scanf("%d", &Temp);
-        if (Temp == 1) Add(i, j + n);
-      }
-
+    cin >> n;
     for (int i = 1; i <= n; i++) {
-      memset(Vis, 0, sizeof(Vis));
-      if (DFS(i)) Ans++;
+      for (int j = 1, k; j <= n; j++) {
+        cin >> k;
+        if (k == 1) {
+          add (i, j + n);
+        }
+      }
     }
-
-    if (Ans >= n)
-      puts("Yes");
-    else
-      puts("No");
-    Clear();
+    for (int i = 1; i <= n; i++) {
+      fill (vis, vis + n * 2 + 1, false);
+      if (DFS (i)) {
+        ans++;
+      }
+    }
+    if (ans >= n) {
+      cout << "Yes" << '\n';
+    } else {
+      cout << "No" << '\n';
+    }
+    for (int i = 1; i <= tot; i++) {
+      edge[i] = {0, 0}, head[i] = 0;
+    }
+    ans = tot = 0;
+    for (int i = 0; i <= n * 2; i++) {
+      cur[i] = 0;
+    }
   }
-
   return 0;
 }
