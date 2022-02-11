@@ -1,69 +1,55 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define maxn 50010
-bool cant[maxn];
-int N, M, K;
-int last[maxn];
-int dx[8] = {-3, -3, -1, -1, 1, 1, 3, 3};
-int dy[8] = {-1, 1, -3, 3, -3, 3, -1, 1};
-int num(int x, int y) {
-  return (x - 1) * M + y;
-}
-int len = 0;
-bool v[maxn];
-int f[maxn];
-struct node {
-  int x, y, next;
-} e[maxn * 8];
-void ins(int x, int y) {
-  len++;
-  e[len] = {x, y, last[x]};
-  last[x] = len;
-}
-bool dfs(int x) {
-  for (int i = last[x]; i != -1; i = e[i].next) {
-    int y = e[i].y;
-    if (!v[y]) {
-      v[y] = true;
-      if (f[y] == 0 || dfs(f[y])) {
-        f[y] = x;
-        return true;
-      }
+typedef long long ll;
+const int INF = 0x3f3f3f3f;
+const int N = 505;
+int mp[N][N], lx[N], ly[N], visx[N], visy[N], match[N];
+int n, m, minz, k;
+
+bool dfs(int x, int K) {
+  visx[x] = K;
+  for (int y = 1; y <= n; ++y) {
+    if (visy[y] != K && mp[x][y] != INF) {
+      int t = lx[x] + ly[y] - mp[x][y];
+      if (!t) {
+        visy[y] = K;
+        if (!match[y] || dfs(match[y], K)) {
+          match[y] = x;
+          return true;
+        }
+      } else
+        minz = min(minz, t);
     }
   }
   return false;
 }
-int main() {
-  scanf("%d%d%d", &N, &M, &K);
-  int x, y, cnt = 0;
-  memset(last, -1, sizeof(last));
-  for (int i = 1; i <= K; i++) {
-    scanf("%d%d", &x, &y);
-    if (cant[num(x, y)]) continue;
-    cant[num(x, y)] = true;
-    cnt++;
-  }
-  for (int i = 1; i <= N; i++) {
-    for (int j = 1; j <= M; j++) {
-      if (!cant[num(i, j)]) {
-        int u = num(i, j);
-        for (int k = 0; k < 8; k++) {
-          x = dx[k] + i;
-          y = dy[k] + j;
-          if (x >= 1 && x <= N && y >= 1 && y <= M && !cant[num(x, y)])
-            ins(u, num(x, y));
-        }
+void KM() {
+  for (int i = 1; i <= n; ++i) {
+    while (1) {
+      minz = INF;
+      if (dfs(i, ++k)) break;
+      for (int j = 1; j <= n; ++j) {
+        if (visx[j] == k) lx[j] -= minz;
+        if (visy[j] == k) ly[j] += minz;
       }
     }
   }
-  int ans = 0;
-  for (int i = 1; i <= N; i++) {
-    for (int j = 1; j <= M; j++) {
-      memset(v, false, sizeof(v));
-      x = num(i, j);
-      if (!cant[x] && dfs(x)) ans++;
-    }
+}
+int main() {
+  scanf("%d%d", &n, &m);
+  memset(mp, INF, sizeof mp);
+  for (int i = 1; i <= n; ++i) lx[i] = -INF;
+  for (int i = 0; i < m; ++i) {
+    int u, v, w;
+    scanf("%d%d%d", &u, &v, &w);
+    mp[u][v] = w;
+    lx[u] = max(lx[u], w);
   }
-  printf("%d", N * M - cnt - ans / 2);
+  KM();
+  ll ans = 0;
+  for (int i = 1; i <= n; ++i) ans += mp[match[i]][i];
+  printf("%lld\n", ans);
+  for (int i = 1; i <= n; ++i) printf("%d ", match[i]);
+  putchar('\n');
   return 0;
 }
