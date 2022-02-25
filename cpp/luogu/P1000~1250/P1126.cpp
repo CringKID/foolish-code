@@ -41,7 +41,6 @@ void bfs() {
         a[back][3] = a[front][3];
         a[back][4] = a[front][4] + 1;
         if (dx == fx && dy == fy) {
-          //					cout<<a[back][4];
           write(a[back][4]);
           return;
         }

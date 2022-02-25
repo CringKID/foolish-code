@@ -1,44 +1,31 @@
 #include <bits/stdc++.h>
-
+#define P pair<ll,ll>
+#define F first
+#define S second
+typedef long long ll;
 using namespace std;
-using ll = long long;
-
-vector <pair <int, int> > solve (int h, int w, int a, int b) {
-  vector <pair <int, int> > ans;
-  if (w == 2) {
-    for (int i = 1; i < a; i++) {
-      ans.emplace_back (i, 1), ans.emplace_back (i, 2);
+int n, m, x;
+ll dp[5002][5002], ans = -1, a[5002];
+deque< P > q[5002];
+int main() {
+    scanf("%d%d%d",&n,&m,&x);
+    for(int i = 1; i <= n; ++i) scanf("%lld",&a[i]);
+    memset(dp,-1,sizeof(dp));
+    dp[0][0] =  0;
+    q[0].push_back(P(0,0));
+    for(int i = 1; i <= n; ++i) {
+        for(int j = 0; j <= i && j <= x; ++j) {
+            while(!q[j].empty() && q[j].front().S < i-m) q[j].pop_front();
+        }
+        for(int j = 1; j <= i && j <= x; ++j) {
+            if(!q[j-1].empty() && q[j-1].front().F != -1)  dp[i][j] = q[j-1].front().F + a[i];
+        }
+        for(int j = 0; j <= i && j <= x; ++j) {
+            while(!q[j].empty() && dp[i][j]>=q[j].back().F) q[j].pop_back();
+            if(dp[i][j] != -1) q[j].push_back(P(dp[i][j],i));
+        }
+ 
+        if(n-i < m) ans = max(ans, dp[i][x]);
     }
-    for (int i = a; i <= h; i++) {
-      ans.emplace_back (i, b ^ 3);
-    }
-    for (int i = h; i >= a; i--) {
-      ans.emplace_back (i, b);
-    }
-  } else if (h > 2 && (a > 2 || a == 2 && b != w)) {
-    for (int i = 1; i <= w; i++) {
-      ans.emplace_back (1, i);
-    }
-    for (pair <int, int> P : solve (h - 1, w, a - 1, w + 1 - b)) {
-      ans.emplace_back (P.first + 1, w + 1 - P.second);
-    }
-  } else {
-    ans = solve (w, h, b, a);
-    for (pair <int, int> P : ans) {
-      swap (P.first, P.second);
-    }
-  }
-  return ans;
-}
-
-int h, w, a, b;
-int main () {
-  ios :: sync_with_stdio (false);
-  cin.tie (0), cout.tie (0);
-
-  cin >> h >> w >> a >> b;
-  for (pair <int, int> P : solve (h, w, a, b)) {
-    cout << P.first << ' ' << P.second << '\n';
-  }
-  return 0;
+    printf("%lld\n",ans);
 }
