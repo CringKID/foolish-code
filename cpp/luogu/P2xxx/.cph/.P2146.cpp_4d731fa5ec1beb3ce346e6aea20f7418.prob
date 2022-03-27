@@ -1,0 +1,1 @@
+{"name":"Local: P2146","url":"d:\\foolish-code\\cpp\\luogu\\P2xxx\\P2146.cpp","tests":[{"id":1646035512435,"input":"7\n0 0 0 1 1 5\n5\ninstall 5\ninstall 6\nuninstall 1\ninstall 4\nuninstall 0","output":"3\n1\n3\n2\n3"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\cpp\\luogu\\P2xxx\\P2146.cpp","group":"local","local":true}

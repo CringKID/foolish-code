@@ -1,0 +1,1 @@
+{"name":"Local: P2765","url":"d:\\foolish-code\\cpp\\luogu\\P2xxx\\P2765.cpp","tests":[{"id":1646549755002,"input":"2 2 1\n1 3 0 1 2\n1 3 1 2 -1","output":"5"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\cpp\\luogu\\P2xxx\\P2765.cpp","group":"local","local":true}

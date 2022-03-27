@@ -1,0 +1,1 @@
+{"name":"Local: ABC220E","url":"d:\\foolish-code\\cpp\\atcoder\\ABC220E.cpp","tests":[{"id":1646122906705,"input":"3 2","output":"14"},{"id":1646122924872,"input":"14142 17320","output":"11284501"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\cpp\\atcoder\\ABC220E.cpp","group":"local","local":true}

@@ -1,55 +1,93 @@
-#include <bits/stdc++.h>
-using namespace std;
-typedef long long ll;
-const int INF = 0x3f3f3f3f;
-const int N = 505;
-int mp[N][N], lx[N], ly[N], visx[N], visy[N], match[N];
-int n, m, minz, k;
+#include<queue>
+#include<cstdio>
+#include<cstring>
+#include<iostream>
+#define INF 0x3f3f3f3f
 
-bool dfs(int x, int K) {
-  visx[x] = K;
-  for (int y = 1; y <= n; ++y) {
-    if (visy[y] != K && mp[x][y] != INF) {
-      int t = lx[x] + ly[y] - mp[x][y];
-      if (!t) {
-        visy[y] = K;
-        if (!match[y] || dfs(match[y], K)) {
-          match[y] = x;
-          return true;
-        }
-      } else
-        minz = min(minz, t);
-    }
-  }
-  return false;
+using namespace std;
+
+const int N = 300 + 10;
+const int M = 50 + 10;
+struct node {
+	int x, val, to, nxt, op;
+}e[N * M * 2 + N + N];
+int n, m, S, T, le[N + 10], tot, KK, disum;
+int ru[N + 10], chu[N + 10], s1, s2, t1, t2;
+int dis[N + 10], lee[N + 10], deg[N + 10];
+bool in[N + 10];
+
+void Add(int x, int y, int z, int w) {
+	e[++KK] = (node){z, w, y, le[x], KK + 1}; le[x] = KK;
+	e[++KK] = (node){0, -w, x, le[y], KK - 1}; le[y] = KK; 
 }
-void KM() {
-  for (int i = 1; i <= n; ++i) {
-    while (1) {
-      minz = INF;
-      if (dfs(i, ++k)) break;
-      for (int j = 1; j <= n; ++j) {
-        if (visx[j] == k) lx[j] -= minz;
-        if (visy[j] == k) ly[j] += minz;
-      }
-    }
-  }
+
+bool SPFA() {
+	memset(deg, 0x7f, sizeof(deg));
+	memset(dis, 0x7f, sizeof(dis));
+	memcpy(lee, le, sizeof(lee));
+	deg[S] = 0; dis[S] = 0;
+	queue <int> q; q.push(S); in[S] = 1;
+	while (!q.empty()) {
+		int now = q.front(); q.pop();
+		for (int i = le[now]; i; i = e[i].nxt)
+			if (e[i].x && dis[e[i].to] > dis[now] + e[i].val) {
+				dis[e[i].to] = dis[now] + e[i].val; deg[e[i].to] = deg[now] + 1;
+				if (!in[e[i].to]) {
+					in[e[i].to] = 1; q.push(e[i].to);
+				}
+			}
+		in[now] = 0;
+	}
+	return dis[T] != dis[0];
 }
+
+int dfs(int now, int sum) {
+	if (now == T) return sum;
+	int go = 0;
+	for (int &i = lee[now]; i; i = e[i].nxt)
+		if (e[i].x && deg[e[i].to] == deg[now] + 1 && dis[e[i].to] == dis[now] + e[i].val) {
+			int this_go = dfs(e[i].to, min(sum - go, e[i].x));
+			if (this_go) {
+				e[i].x -= this_go; e[e[i].op].x += this_go;
+				go += this_go; if (go == sum) return go;
+			}
+		}
+	if (go != sum) dis[now] = -1;
+	return go;
+}
+
+int Dinic() {
+	int re = 0;
+	while (SPFA())
+		re += dfs(S, INF) * dis[T];
+	return re;
+}
+
 int main() {
-  scanf("%d%d", &n, &m);
-  memset(mp, INF, sizeof mp);
-  for (int i = 1; i <= n; ++i) lx[i] = -INF;
-  for (int i = 0; i < m; ++i) {
-    int u, v, w;
-    scanf("%d%d%d", &u, &v, &w);
-    mp[u][v] = w;
-    lx[u] = max(lx[u], w);
-  }
-  KM();
-  ll ans = 0;
-  for (int i = 1; i <= n; ++i) ans += mp[match[i]][i];
-  printf("%lld\n", ans);
-  for (int i = 1; i <= n; ++i) printf("%d ", match[i]);
-  putchar('\n');
-  return 0;
+	scanf("%d", &n);
+	
+	tot = n; s1 = 1; t1 = ++tot; s2 = ++tot; t2 = ++tot;
+	for (int i = 1; i <= n; i++) {
+		int k, b, t; scanf("%d", &k);
+		for (int j = 1; j <= k; j++) {
+			scanf("%d %d", &b, &t);
+			Add(i, b, INF, t);
+			chu[i] += 1; ru[b] += 1;
+			disum += 1 * t;
+		}
+	}
+	for (int i = 2; i <= n; i++) {
+		Add(i, t1, INF, 0);
+	}
+	
+	for (int i = 1; i <= n; i++) {
+		if (ru[i] > chu[i]) Add(s2, i, ru[i] - chu[i], 0);
+		if (chu[i] > ru[i]) Add(i, t2, chu[i] - ru[i], 0);
+	}
+	
+	Add(t1, s1, INF, 0);
+	S = s2; T = t2;
+	printf("%d", disum + Dinic());
+	
+	return 0;
 }
