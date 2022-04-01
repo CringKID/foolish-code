@@ -4,10 +4,10 @@
 #include <queue>
 
 using namespace std;
-const int kMaxN = 305, kMaxM = 55, kInf = 0x3f3f3f3f;
+const int kMaxN = 305, kInf = 0x3f3f3f3f;
 struct Edge {
 	int x, val, to, nxt, op;
-} edge[kMaxN * kMaxM * 2];
+} edge[kMaxN * 105];
 int n, m, s, t, le[kMaxN], tot, cnt, disum, ind[kMaxN], out[kMaxN], s1, s2, t1, t2, dis[kMaxN], lee[kMaxN], deg[kMaxN];
 bool vis[kMaxN];
 void add (int x, int y, int z, int w) {
@@ -38,15 +38,15 @@ int DFS (int now, int sum) {
     return sum;
   }
 	int go = 0;
-	for (int &i = lee[now]; i; i = edge[i].nxt) {
+	for (int i = lee[now]; i; i = edge[i].nxt) {
 		if (edge[i].x && deg[edge[i].to] == deg[now] + 1 && dis[edge[i].to] == dis[now] + edge[i].val) {
 			int this_go = DFS (edge[i].to, min (sum - go, edge[i].x));
 			if (this_go) {
 				edge[i].x -= this_go;
         edge[edge[i].op].x += this_go;
-				go += this_go; 
+				go += this_go;
         if (go == sum) {
-          return go;
+          return go; 
         }
 			}
 		}
@@ -60,7 +60,7 @@ int Dinic () {
 	int re = 0;
 	while (SPFA ()) {
 		re += DFS (s, kInf) * dis[t];
-  cout << "passed" << '\n';
+    cout << "passed" << '\n';
   }
 	return re;
 }

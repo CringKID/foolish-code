@@ -1,0 +1,1 @@
+{"name":"Local: P8253","url":"d:\\foolish-code\\cpp\\luogu\\P8xxx\\P8253.cpp","tests":[{"id":1648610347742,"input":"3 5\n1 7 2 2 7\n9 10 4 10 3\n7 7 8 10 2","output":"564"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\cpp\\luogu\\P8xxx\\P8253.cpp","group":"local","local":true}
