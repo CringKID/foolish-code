@@ -7,21 +7,19 @@ using namespace std;
 const int kMaxN = 505, kMaxM = 1e5 + 5, kInf = 1e9;
 
 struct Edge {
-  int to, nxt, val;
+  int to, next, val;
 } edge[kMaxM << 1];
-int tot = 1, head[kMaxN << 1], n, m, S, T, a[kMaxN], f[kMaxN], dis[kMaxN << 1], nhead[kMaxN << 1], maxflow;
-void add (int u, int v, int w) {
-  edge[++tot] = {v, head[u], w}, head[u] = tot;
-  edge[++tot] = {u, head[v], 0}, head[v] = tot;
+int tot = 1, head[kMaxN << 1], n, m, S, T, arr[kMaxN], f[kMaxN], dis[kMaxN << 1], nhead[kMaxN << 1], maxflow;
+void add (int from, int to, int val) {
+  edge[++tot] = {to, head[from], val}, head[from] = tot;
+  edge[++tot] = {from, head[to], 0}, head[to] = tot;
 }
 bool BFS () {
-  for (int i = 0; i <= T; i++) {
-    nhead[i] = head[i], dis[i] = kInf;
-  }
-  queue <int> que; que.push(S), dis[S] = 0;
+  copy_n (head, T + 1, nhead), fill_n (dis, T + 1, kInf);
+  queue <int> que; que.push (S), dis[S] = 0;
   while (!que.empty ()) {
     int from = que.front (); que.pop ();
-    for (int i = head[from]; i; i = edge[i].nxt) {
+    for (int i = head[from]; i; i = edge[i].next) {
       int to = edge[i].to;
       if (dis[to] == kInf && edge[i].val) {
         dis[to] = dis[from] + 1;
@@ -42,7 +40,7 @@ int DFS (int x, int cur) {
     return 0;
   }
   int rec = 0;
-  for (int i = nhead[x]; i && cur; i = edge[i].nxt) {
+  for (int i = nhead[x]; i && cur; i = edge[i].next) {
     nhead[x] = i;
     int v = edge[i].to;
     if (dis[v] == dis[x] + 1 && edge[i].val) {
@@ -59,13 +57,13 @@ int main () {
 
   cin >> n;
   for (int i = 1; i <= n; i++) {
-    cin >> a[i];
+    cin >> arr[i];
   }
   int ans = 0;
   for (int i = 1; i <= n; i++) {
     f[i] = 1;
     for (int j = 1; j < i; j++) {
-      if (a[i] >= a[j]) {
+      if (arr[i] >= arr[j]) {
         f[i] = max (f[i], f[j] + 1);
       }
     }
@@ -88,7 +86,7 @@ int main () {
   }
   for (int i = 1; i <= n; i++) {
     for (int j = 1; j < i; j++) {
-      if (a[j] <= a[i] && f[j] + 1 == f[i]) {
+      if (arr[j] <= arr[i] && f[j] + 1 == f[i]) {
         add (j + n, i, 1);
       }
     }
@@ -122,7 +120,7 @@ int main () {
   }
   for (int i = 1; i <= n; i++) {
     for (int j = 1; j < i; j++) {
-      if (a[j] <= a[i] && f[j] + 1 == f[i]) {
+      if (arr[j] <= arr[i] && f[j] + 1 == f[i]) {
         add (j + n, i, 1);
       }
     }

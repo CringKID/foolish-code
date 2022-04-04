@@ -1,0 +1,1 @@
+{"name":"Local: mycode","url":"d:\\foolish-code\\cpp\\others\\mycode.cpp","tests":[{"id":1649050693941,"input":"6\n2 2 1 3 2\n2 4 3 5 4\n2 5 5 6 6\n0\n0\n0","output":"24"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\cpp\\others\\mycode.cpp","group":"local","local":true}

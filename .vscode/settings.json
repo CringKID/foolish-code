@@ -71,7 +71,8 @@
         "scoped_allocator": "cpp",
         "stdexcept": "cpp",
         "typeindex": "cpp",
-        "rope": "cpp"
+        "rope": "cpp",
+        "queue": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

@@ -3,10 +3,7 @@
 #include <vector>
 
 using namespace std;
-using ll = long long;
-using Pii = pair <int, int>;
-using Pll = pair <ll, ll>;
-const int kMaxN = 1e5 + 5, kMod = 1e9 + 7, kInf = 1e9;
+const int kMaxN = 1e5 + 5;
 
 struct Node {
   int son[2], value, size, rotate;
@@ -39,7 +36,6 @@ void Balance (int &x, bool tag) {
   Rotate (x, ve.back ());
   ve.clear ();
 } 
-
 void Rankfind (int &x, int rank) {
   Checkrotate (x);
   int now = tr[tr[x].son[0]].size + 1;
@@ -49,7 +45,6 @@ void Rankfind (int &x, int rank) {
     Balance (x, tag);
   }
 }
-
 void DFSprint (int sum) {
   if (!sum) {
     return ;
@@ -59,14 +54,9 @@ void DFSprint (int sum) {
   cout << tr[sum].value << ' ';
   DFSprint (tr[sum].son[1]);
 }
-//#define contest
 int main () {
   ios :: sync_with_stdio (false);
   cin.tie (0), cout.tie (0);
-#ifdef contest
-  freopen (, , stdin);
-  freopen (, , stdout);
-#endif
 
   cin >> n >> m;
   for (int i = 1; i <= n + 1; i++) {

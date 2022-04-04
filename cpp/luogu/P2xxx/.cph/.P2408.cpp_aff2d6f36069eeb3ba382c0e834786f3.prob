@@ -1,0 +1,1 @@
+{"name":"Local: P2408","url":"d:\\foolish-code\\cpp\\luogu\\P2xxx\\P2408.cpp","tests":[{"id":1648956735441,"input":"5\naabaa","output":"11"},{"id":1648956737874,"input":"3\naba","output":"5"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\cpp\\luogu\\P2xxx\\P2408.cpp","group":"local","local":true}
