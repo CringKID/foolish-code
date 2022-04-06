@@ -1,97 +1,49 @@
 #include <iostream>
 #include <algorithm>
 #include <cstring>
-#include <vector>
 #include <map>
 
 using namespace std;
-const int kMaxN = 255, kMaxM = 4e4 + 5, kInf = 1e9;
+const int kMaxN = 105, kInf = 0x7fffffff;
 
-bool st[kMaxN], vis[kMaxN];
-int n, m, s, t, idg, head[kMaxN], tot, que[kMaxN], cost[kMaxN], cnt;
-struct Edge {
-  int to, flow, val, next;
-} edge[kMaxM];
-map <string, int> g; map <int, string> ing;
-vector <string> path1, path2;
-void add (int from, int to, int flow, int val) {
-  edge[tot] = {to, flow, val, head[from]}, head[from] = tot++;
-  edge[tot] = {from, 0, -val, head[to]}, head[to] = tot++;
-}
-void add (int from, int to) {
-  edge[tot] = {to, 0, 0, head[from]}, head[from] = tot++;
-}
-bool BFS () {
-  int hd = 0, tl = 1;
-  for (int i = 0; i <= t; i++) {
-    st[i] = false, cost[i] = kInf;
+string str;
+bool edge[kMaxN][kMaxN];
+int n, m, dp[kMaxN][kMaxN], pre[kMaxN][kMaxN], type[kMaxN][kMaxN], arr1[kMaxN], arr2[kMaxN], tot;
+map <int, string> encode;
+map <string, int> decode;
+int DFS1 (int x, int y) {
+  if (dp[x][y]) {
+    return dp[x][y];
   }
-  que[s] = 0, st[s] = 1, cost[s] = 0;
-  while (hd != tl) {
-    int from = que[hd++];
-    if (hd == kMaxN) {
-      hd = 0;
+  if (x + y == 1) {
+    return 0;
+  }
+  int mmin = min (x, y);
+  for (int i = 0; i < mmin; i++) {
+    if (edge[i][x]) {
+      dp[y][x] = dp[x][y] = max (dp[x][y], DFS1 (i, y) + 1);
     }
-    st[t] = 0;
-    for (int i = head[from]; ~i; i = edge[i].next) {
-      int to = edge[i].to;
-      if (edge[i].flow && cost[to] > cost[t] + edge[i].val) {
-        cost[to] = cost[t] + edge[i].val;
-        if (!st[to]) {
-          st[to] = true;
-          que[tl++] = to;
-          if (tl == kMaxN) {
-            tl = 0;
-          }
-        }
-      }
+    if (edge[i][y]) {
+      dp[y][x] = dp[x][y] = max (dp[x][y], DFS1 (i, x) + 1);
     }
   }
-  return cost[t] != kInf;
+  return (!dp[x][y]) ? -kInf : dp[x][y];
 }
-int DFS (int x, int cur) {
-  vis[x] = true;
-  if (x == t) {
-    return cur;
+void DFS2 (int x, int y) {
+  arr1[++tot] = x, arr2[tot] = y;
+  if (x + y == 1) {
+    return ;
   }
-  int tag = 0;
-  for (int i = head[x]; ~i; i = edge[i].next) {
-    int to = edge[i].to;
-    if (!vis[to] && edge[i].flow && cost[to] == cost[x] + edge[i].val) {
-      int tmp;
-      if (tmp = DFS (to, min (cur - tag, edge[i].flow))) {
-        edge[i].flow -= tmp;
-        edge[i ^ 1].flow += tmp;
-        tag += tmp, cnt += edge[i].val;
-        if (tag == tmp) {
-          break;
-        }
-      }
+  int mmin = min (x, y);
+  for (int i = 0; i < mmin; i++) {
+    if (dp[i][y] == dp[x][y] - 1 && edge[i][x]) {
+      DFS2 (i, y);
+      return ;
     }
-  }
-  return tag;
-}
-int dinic () {
-  int rec = 0;
-  while (BFS ()) {
-    vis[t] = true;
-    while (vis[t]) {
-      memset (vis, false, sizeof (vis));
-      rec += DFS (s, kInf);
+    if (dp[x][i] == dp[x][y] - 1 && edge[i][y]) {
+      DFS2 (x, i);
+      return ;
     }
-  }
-  return rec;
-}
-void dfs (int x, vector <string> &path) {
-  path.push_back (ing[x]);
-  vis[x] = true;
-  for (int i = head[x]; ~i; i = edge[i].next) {
-    int to = edge[i].to;
-    if (vis[to]) {
-      continue;
-    }
-    dfs (to, path);
-    break;
   }
 }
 int main () {
@@ -99,63 +51,44 @@ int main () {
   cin.tie (0), cout.tie (0);
 
   cin >> n >> m;
-  memset (head, -1, sizeof (head));
-  s = 0, t = n * 2 + 1;
   for (int i = 1; i <= n; i++) {
-    string str; cin >> str;
-    if (!g.count (str)) {
-      g[str] = ++idg;
-      ing[idg] = str;
-    }
-    if (i == 1) {
-      add (s, g[str], 2, 0);
-    }
-    if (i == n) {
-      add (g[str] + n, t, 2, 0);
-    }
-    if (i == 1 || i == n) {
-      add (i, i + n, 2, -1);
-    } else {
-      add (i, i + n, 1, -1);
-    }
+    cin >> str;
+    encode[i] = str, decode[str] = i;
   }
-  int len = tot;
-  bool tag = false;
   for (int i = 1; i <= m; i++) {
-    string str1, str2;
-    cin >> str1 >> str2;
-    add (g[str1] + n, g[str2], 1, 0);
-    if (g[str1] == 1 && g[str2] == n) {
-      tag = true;
+    string str1, str2; cin >> str1 >> str2;
+    int x = decode[str1], y = decode[str2];
+    edge[x][y] = edge[y][x] = true;
+    if (x == 1) {
+      edge[0][y] = edge[y][0] = true;
+    } else if (y == 1) {
+      edge[0][x] = edge[x][0] = true;
     }
   }
-  int len2 = tot, rec = dinic ();
-  if (rec == 1 && tag) {
-    cout << 2 << '\n' << ing[1] << '\n' << ing[n] << '\n' << ing[1] << '\n';
+  DFS1 (n, n);
+  if (!dp[n][n]) {
+    cout << "No Solution" << '\n';
     return 0;
   }
-  if (rec != 2) {
-    cout << "No Solution!" << '\n';
-    return 0;
-  } else {
-    cout << -cnt - 2 << '\n';
-  }
-  tot = 0;
-  memset (head, -1, sizeof (head));
-  for (int i = len; i < len2; i++) {
-    if (i & 1 && edge[i].flow) {
-      int a = edge[i].to - n, b = edge[i ^ 1].to;
-      add (a, b);
+  cout << dp[n][n] << '\n';
+  for (int i = 1; i < n; i++) {
+    if (dp[i][n] == dp[n][n] - 1) {
+      DFS2 (i, n); break;
     }
   }
-  memset (vis, false, sizeof (vis));
-  dfs (1, path1), dfs (1, path2);
-  reverse (path2.begin (), path2.end ());
-  for (string str : path1) {
-    cout << str << '\n';
+  sort (arr1 + 1, arr1 + tot + 1), sort (arr2 + 1, arr2 + tot + 1);
+  int size1 = unique (arr1 + 1, arr1 + tot + 1) - arr1 - 1, size2 = unique (arr2 + 1, arr2 + tot + 1) - arr2 - 1;
+  cout << encode[1] << '\n';
+  for (int i = 1; i <= size1; i++) {
+    if (arr1[i] > 1) {
+      cout << encode[arr1[i]] << '\n';
+    }
   }
-  for (string str : path2) {
-    cout << str << '\n';
+  for (int i = size2; i; i--) {
+    if (arr2[i] > 1) {
+      cout << encode[arr2[i]] << '\n';
+    }
   }
+  cout << encode[1] << '\n';
   return 0;
 }

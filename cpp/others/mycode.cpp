@@ -1,117 +1,33 @@
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <queue>
-#define INF 0x3f3f3f3f
-
+#include <bits/stdc++.h>
 using namespace std;
-
-const int N = 300 + 10;
-const int M = 50 + 10;
-struct node {
-  int x, val, to, nxt, op;
-} e[N * M * 2 + N + N];
-int n, m, S, T, le[N + 10], tot, KK, disum;
-int ru[N + 10], chu[N + 10], s1, s2, t1, t2;
-int dis[N + 10], lee[N + 10], deg[N + 10];  
-bool in[N + 10];
-
-void Add(int x, int y, int z, int w) {
-  e[++KK] = (node){z, w, y, le[x], KK + 1};
-  le[x] = KK;
-  e[++KK] = (node){0, -w, x, le[y], KK - 1};
-  le[y] = KK;
+const int N = 6e3 + 5, mod = 1e9 + 7;
+int n, a[N], b[N], p[N], fac[N], inv[N], pre, cur = 1, f[2][N], tot, ans;
+bool vis[N];
+int C(int n, int m) {
+  return n < m ? 0 : 1ll * fac[n] * inv[m] % mod * inv[n - m] % mod;
 }
-
-bool SPFA() {
-  memset(deg, 0x7f, sizeof(deg));
-  memset(dis, 0x7f, sizeof(dis));
-  memcpy(lee, le, sizeof(lee));
-  deg[S] = 0;
-  dis[S] = 0;
-  queue<int> q;
-  q.push(S);
-  in[S] = 1;
-  while (!q.empty()) {
-    int now = q.front();
-    q.pop();
-    for (int i = le[now]; i; i = e[i].nxt)
-      if (e[i].x && dis[e[i].to] > dis[now] + e[i].val) {
-        dis[e[i].to] = dis[now] + e[i].val;
-        deg[e[i].to] = deg[now] + 1;
-        if (!in[e[i].to]) {
-          in[e[i].to] = 1;
-          q.push(e[i].to);
-        }
-      }
-    in[now] = 0;
-  }
-  return dis[T] != dis[0];
-}
-
-int dfs(int now, int sum) {
-  if (now == T) {
-    return sum;
-  }
-  int rec = 0;
-  for (int i = lee[now]; i; i = e[i].nxt) {
-    if (e[i].x && deg[e[i].to] == deg[now] + 1 && dis[e[i].to] == dis[now] + e[i].val) {
-      int to = dfs(e[i].to, min (sum - rec, e[i].x));
-      if (to) {
-        e[i].x -= to;
-        e[e[i].op].x += to;
-        rec += to;
-        if (rec == sum) {
-          return sum;
-        }
-      }
+signed main() {
+  scanf("%d", &n), fac[0] = inv[0] = inv[1] = 1;
+  for (int i = 1; i <= n; i++) scanf("%d", &a[i]);
+  for (int i = 1; i <= n; i++) scanf("%d", &b[i]), p[a[i]] = b[i];
+  for (int i = 2; i <= 2 * n + 1; i++) inv[i] = 1ll * inv[mod % i] * (mod - mod / i) % mod;
+  for (int i = 1; i <= 2 * n + 1; i++)
+    fac[i] = 1ll * fac[i - 1] * i % mod, inv[i] = 1ll * inv[i - 1] * inv[i] % mod;
+  f[cur][0] = 1;
+  for (int x = 1; x <= n; x++)
+    if (!vis[x]) {
+      int sz = 0;
+      for (int i = x; !vis[i]; i = p[i]) vis[i] = 1, sz++;
+      swap(cur, pre), fill(f[cur], f[cur] + 2 + tot, 0);
+      if (sz == 1)
+        for (int i = 0; i <= tot + 1; i++) f[cur][i] = (f[pre][i] + (i ? f[pre][i - 1] : 0)) % mod;
+      else
+        for (int i = 0; i <= tot; i++)
+          for (int j = 0; j <= sz; j++) f[cur][i + j] = (f[cur][i + j] + 1ll * f[pre][i] * (C(2 * sz - j, j) + C(2 * sz - j - 1, j - 1)) % mod) % mod;
+      tot += sz;
     }
-  }
-  if (rec != sum) {
-    dis[now] = -1;
-  }
-  return rec;
-}
-
-int Dinic() {
-  int rec = 0;
-  while (SPFA()) {
-    rec += dfs (S, INF) * dis[T];
-  }
-  return rec;
-}
-int main() {
-  scanf("%d", &n);
-
-  tot = n;
-  s1 = 1;
-  t1 = ++tot;
-  s2 = ++tot;
-  t2 = ++tot;
-  for (int i = 1; i <= n; i++) {
-    int k, b, t;
-    scanf("%d", &k);
-    for (int j = 1; j <= k; j++) {
-      scanf("%d %d", &b, &t);
-      Add(i, b, INF, t);
-      chu[i] += 1;
-      ru[b] += 1;
-      disum += 1 * t;
-    }
-  }
-  for (int i = 2; i <= n; i++) {
-    Add(i, t1, INF, 0);
-  }
-
-  for (int i = 1; i <= n; i++) {
-    if (ru[i] > chu[i]) Add(s2, i, ru[i] - chu[i], 0);
-    if (chu[i] > ru[i]) Add(i, t2, chu[i] - ru[i], 0);
-  }
-
-  Add(t1, s1, INF, 0);
-  S = s2;
-  T = t2;
-  printf("%d", disum + Dinic());
-
+  for (int i = 0; i <= n; i++)
+    ans = (ans + 1ll * (i & 1 ? mod - 1 : 1) * f[cur][i] % mod * fac[n - i] % mod) % mod;
+  printf("%d\n", ans);
   return 0;
 }

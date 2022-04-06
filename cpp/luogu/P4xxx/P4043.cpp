@@ -22,7 +22,7 @@ bool SPFA() {
   deg[S] = 0, dis[S] = 0;
   queue <int> q;
   q.push (S), vis[S] = true;
-  while (!q.empty()) {
+  while (!q.empty ()) {
     int now = q.front (); q.pop ();
     for (int i = head[now]; i; i = edge[i].next) {
       if (edge[i].x && dis[edge[i].to] > dis[now] + edge[i].val) {
@@ -79,14 +79,12 @@ int main() {
     for (int j = 1; j <= k; j++) {
 			cin >> b >> t;
       add (i, b, kInf, t);
-      outd[i] += 1;
-      ind[b] += 1;
-      disum += 1 * t;
+      outd[i]++, ind[b]++, disum += t;
     }
   }
   for (int i = 2; i <= n; i++) {
     add (i, t1, kInf, 0);
-  }
+  } 
   for (int i = 1; i <= n; i++) {
     if (ind[i] > outd[i]) {
 			add (s2, i, ind[i] - outd[i], 0);
