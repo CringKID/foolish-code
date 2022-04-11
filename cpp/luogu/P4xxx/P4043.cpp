@@ -4,7 +4,7 @@
 #include <queue>
 
 using namespace std;
-const int kMaxN = 305, kMaxM = 55, kInf = 0x3f3f3f3f;
+const int kMaxN = 355, kMaxM = 75, kInf = 0x3f3f3f3f;
 
 struct Edge {
   int to, next, x, val, opt;
@@ -14,8 +14,8 @@ bool vis[kMaxN];
 void add(int u, int v, int x, int y) {
   edge[++cnt] = {v, head[u], x, y, cnt + 1};
   head[u] = cnt;
-  edge[++cnt] = {u, nhead[v], 0, -y, cnt - 1};
-  nhead[v] = cnt;
+  edge[++cnt] = {u, head[v], 0, -y, cnt - 1};
+  head[v] = cnt;
 }
 bool SPFA() {
 	memset (deg, 0x7f, sizeof (deg)), memset (dis, 0x7f, sizeof (dis)), memcpy (nhead, head, sizeof (nhead));

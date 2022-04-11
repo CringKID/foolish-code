@@ -6,27 +6,20 @@ const int kMaxN = 605, kMaxM = kMaxN * kMaxN, kDir[4][2] = {{1, 0}, {0, 1}, {-1,
 
 int n, o, fath[kMaxM], t1, t2, p[2] = {1, 1}, sum[kMaxM];
 char Map[kMaxN][kMaxN];
-bool tag[kMaxN];
+bool tag[kMaxM];
 int root (int x) {
   return x == fath[x] ? x : fath[x] = root (fath[x]);
 }
 int encode (int x, int y) {
   return (x - 1) * n + y;
 }
-/*
-int nx = x + kDir[dir][0], ny = y + kDir[dir][1];
-if (!isalpha (Map[nx][ny])) {
-  continue;
-}
-int fa = root (encode (nx, ny));
-*/
 int main () {
   ios :: sync_with_stdio (false);
   cin.tie (0), cout.tie (0);
 
   cin >> n;
   for (int i = 1; i <= n; i++) {
-    cin >> Map[i][1];
+    cin >> Map[i] + 1;
   }
   for (int i = 1; i <= n; i++) {
     for (int j = 1; j <= n; j++) {
@@ -36,12 +29,12 @@ int main () {
       }
       for (int dir = 0; dir < 4; dir++) {
         sum[t1] += (Map[i + kDir[dir][0]][j + kDir[dir][1]] == '.');
-        if (Map[i][j] == Map[i - 1][j] && t1 != (t2 = root (encode (i - 1, j)))) {
-          sum[t1] += sum[t2], fath[t2] = t1;
-        }
-        if (Map[i][j] == Map[i][j - 1] && t1 != (t2 = root (encode (i, j - 1)))) {
-          sum[t1] += sum[t2], fath[t2] = t1;
-        }
+      }
+      if (Map[i][j] == Map[i - 1][j] && t1 != (t2 = root (encode (i - 1, j)))) {
+        sum[t1] += sum[t2], fath[t2] = t1;
+      }
+      if (Map[i][j] == Map[i][j - 1] && t1 != (t2 = root (encode (i, j - 1)))) {
+        sum[t1] += sum[t2], fath[t2] = t1;
       }
     }
   }

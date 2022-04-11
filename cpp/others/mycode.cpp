@@ -1,33 +1,118 @@
-#include <bits/stdc++.h>
-using namespace std;
-const int N = 6e3 + 5, mod = 1e9 + 7;
-int n, a[N], b[N], p[N], fac[N], inv[N], pre, cur = 1, f[2][N], tot, ans;
-bool vis[N];
-int C(int n, int m) {
-  return n < m ? 0 : 1ll * fac[n] * inv[m] % mod * inv[n - m] % mod;
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <map>
+#include <queue>
+#include <string>
+#define _ 0
+#define LL long long
+inline LL in() {
+  LL x = 0, f = 1;
+  char ch;
+  while (!isdigit(ch = getchar())) (ch == '-') && (f = -f);
+  while (isdigit(ch)) x = x * 10 + (ch ^ 48), ch = getchar();
+  return x * f;
 }
-signed main() {
-  scanf("%d", &n), fac[0] = inv[0] = inv[1] = 1;
-  for (int i = 1; i <= n; i++) scanf("%d", &a[i]);
-  for (int i = 1; i <= n; i++) scanf("%d", &b[i]), p[a[i]] = b[i];
-  for (int i = 2; i <= 2 * n + 1; i++) inv[i] = 1ll * inv[mod % i] * (mod - mod / i) % mod;
-  for (int i = 1; i <= 2 * n + 1; i++)
-    fac[i] = 1ll * fac[i - 1] * i % mod, inv[i] = 1ll * inv[i - 1] * inv[i] % mod;
-  f[cur][0] = 1;
-  for (int x = 1; x <= n; x++)
-    if (!vis[x]) {
-      int sz = 0;
-      for (int i = x; !vis[i]; i = p[i]) vis[i] = 1, sz++;
-      swap(cur, pre), fill(f[cur], f[cur] + 2 + tot, 0);
-      if (sz == 1)
-        for (int i = 0; i <= tot + 1; i++) f[cur][i] = (f[pre][i] + (i ? f[pre][i - 1] : 0)) % mod;
-      else
-        for (int i = 0; i <= tot; i++)
-          for (int j = 0; j <= sz; j++) f[cur][i + j] = (f[cur][i + j] + 1ll * f[pre][i] * (C(2 * sz - j, j) + C(2 * sz - j - 1, j - 1)) % mod) % mod;
-      tot += sz;
+const int inf = 0x7fffffff;
+int n, v, s, t, cnt = 1;
+std::queue<int> q;
+struct node {
+  int to, dis, nxt, can;
+  node(int to = 0, int dis = 0, int nxt = 0, int can = 0) : to(to), dis(dis), nxt(nxt), can(can) {}
+} e[1050500];
+int dis[1200], change[1200], head[1200], road[1200];
+bool vis[1200], flag;
+std::map<std::string, int> Map;
+std::string str[1200], str1, str2;
+int arr1[1200], arr2[1200];
+int nhead[1200], sta[1200], top;
+inline void add(int from, int to, int dis, int can) {
+  e[++cnt] = node(to, dis, head[from], can);
+  head[from] = cnt;
+}
+inline void link(int from, int to, int dis, int can) {
+  add(from, to, dis, can);
+  add(to, from, -dis, 0);
+}
+inline bool spfa() {
+  for (int i = 1; i <= n << 1; i++) dis[i] = -inf, change[i] = inf;
+  dis[s] = 0;
+  q.push(s);
+  while (!q.empty()) {
+    int tp = q.front();
+    q.pop();
+    vis[tp] = false;
+    for (int i = head[tp]; i; i = e[i].nxt) {
+      int go = e[i].to;
+      if (dis[go] < dis[tp] + e[i].dis && e[i].can > 0) {
+        dis[go] = dis[tp] + e[i].dis;
+        change[go] = std::min(change[tp], e[i].can);
+        road[go] = i;
+        if (!vis[go]) vis[go] = true, q.push(go);
+      }
     }
-  for (int i = 0; i <= n; i++)
-    ans = (ans + 1ll * (i & 1 ? mod - 1 : 1) * f[cur][i] % mod * fac[n - i] % mod) % mod;
-  printf("%d\n", ans);
+  }
+  return change[t] != inf;
+}
+inline void add(int from, int to) {
+  e[++cnt] = node(to, 0, nhead[from], 0);
+  nhead[from] = cnt;
+}
+inline void dfs(int x) {
+  sta[++top] = x;
+  vis[x] = 1;
+  for (int i = nhead[x]; i; i = e[i].nxt) {
+    int go = e[i].to;
+    if (!vis[go]) dfs(go);
+  }
+}
+inline void mcmf() {
+  int flow = 0;
+  int cost = 0;
+  while (spfa()) {
+    flow += change[t];
+    cost += change[t] * dis[t];
+    std :: cerr << change[t] << ' ' << dis[t] << '\n';
+    for (int i = t; i != s; i = e[road[i] ^ 1].to) {
+      e[road[i]].can -= change[t];
+      e[road[i] ^ 1].can += change[t];
+    }
+  }
+  if (cost == 2) {
+    printf("2\n");
+    std::cout << str[1] << '\n'
+              << str[n] << '\n'
+              << str[1];
+  } else if (flow == 2) {
+    printf("%d\n", cost);
+    for (int i = 1; i <= v; i++)
+      for (int j = head[arr1[i] + n]; j; j = e[j].nxt)
+        if (e[j].to == arr2[i] && !e[j].can)
+          add(arr1[i], arr2[i]), add(arr2[i], arr1[i]);
+    dfs(s);
+    for (int i = 1; i <= top; i++) std::cout << str[sta[i]] << '\n';
+    std::cout << str[1];
+  } else
+    return (void)(printf("No Solution!"));
+}
+int main() {
+  n = in(), v = in();
+  s = 1, t = n * 2;
+  for (int i = 1; i <= n; i++) {
+    std::cin >> str[i];
+    Map[str[i]] = i;
+    link(i, i + n, 1, 1);
+  }
+  link(s, s + n, 0, 1);
+  link(n, n + n, 0, 1);
+  for (int i = 1; i <= v; i++) {
+    std::cin >> str1 >> str2;
+    if (Map[str1] > Map[str2]) std::swap(str1, str2);
+    arr1[i] = Map[str1], arr2[i] = Map[str2];
+    link(Map[str1] + n, Map[str2], 0, 1);
+  }
+  mcmf();
   return 0;
 }

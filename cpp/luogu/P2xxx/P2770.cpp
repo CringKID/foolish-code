@@ -1,48 +1,57 @@
 #include <iostream>
 #include <algorithm>
 #include <cstring>
+#include <queue>
 #include <map>
 
 using namespace std;
-const int kMaxN = 105, kInf = 0x7fffffff;
+const int kMaxN = 1e3 + 5, kMaxM = 1e6 + 5, kInf = 0x7fffffff;
 
-string str;
-bool edge[kMaxN][kMaxN];
-int n, m, dp[kMaxN][kMaxN], pre[kMaxN][kMaxN], type[kMaxN][kMaxN], arr1[kMaxN], arr2[kMaxN], tot;
-map <int, string> encode;
-map <string, int> decode;
-int DFS1 (int x, int y) {
-  if (dp[x][y]) {
-    return dp[x][y];
-  }
-  if (x + y == 1) {
-    return 0;
-  }
-  int mmin = min (x, y);
-  for (int i = 0; i < mmin; i++) {
-    if (edge[i][x]) {
-      dp[y][x] = dp[x][y] = max (dp[x][y], DFS1 (i, y) + 1);
-    }
-    if (edge[i][y]) {
-      dp[y][x] = dp[x][y] = max (dp[x][y], DFS1 (i, x) + 1);
-    }
-  }
-  return (!dp[x][y]) ? -kInf : dp[x][y];
+queue <int> que;
+int n, v, s, t, cnt = 1, dis[kMaxN], change[kMaxN], head[kMaxN], road[kMaxN], arr1[kMaxN], arr2[kMaxN], nhead[kMaxN], sta[kMaxN], top;
+struct Edge {
+  int to, dist, next, tag;
+} edge[kMaxM];
+map <string, int> Map;
+string str[kMaxN], str1, str2;
+bool vis[kMaxN];
+void add (int from, int to, int dist, int tag) {
+  edge[++cnt] = {to, dist, head[from], tag};
+  head[from] = cnt;
+  edge[++cnt] = {from, -dist, head[to], 0};
+  head[to] = cnt;
 }
-void DFS2 (int x, int y) {
-  arr1[++tot] = x, arr2[tot] = y;
-  if (x + y == 1) {
-    return ;
+void add (int from, int to) {
+  edge[++cnt] = {to, 0, nhead[from], 0};
+  nhead[from] = cnt;
+}
+bool SPFA () {
+  for (int i = 1; i <= n << 1; i++) {
+    dis[i] = -kInf, change[i] = kInf;
   }
-  int mmin = min (x, y);
-  for (int i = 0; i < mmin; i++) {
-    if (dp[i][y] == dp[x][y] - 1 && edge[i][x]) {
-      DFS2 (i, y);
-      return ;
+  dis[s] = 0, que.push (s);
+  while (!que.empty ()) {
+    int from = que.front (); que.pop (), vis[from] = false;
+    for (int i = head[from]; i; i = edge[i].next) {
+      int to = edge[i].to;
+      if (dis[to] < dis[from] + edge[i].dist && edge[i].tag > 0) {
+        dis[to] = dis[from] = edge[i].dist;
+        change[to] = min (change[from], edge[i].tag);
+        road[to] = i;
+        if (!vis[to]) {
+          vis[to] = true, que.push (to);
+        }
+      }
     }
-    if (dp[x][i] == dp[x][y] - 1 && edge[i][y]) {
-      DFS2 (x, i);
-      return ;
+  }
+  return change[t] != kInf;
+}
+void DFS (int x) {
+  sta[++top] = x, vis[x] = true;
+  for (int i = nhead[x]; i; i = edge[i].next) {
+    int to = edge[i].to;
+    if (!vis[to]) {
+      DFS (to);
     }
   }
 }
@@ -50,45 +59,49 @@ int main () {
   ios :: sync_with_stdio (false);
   cin.tie (0), cout.tie (0);
 
-  cin >> n >> m;
+  cin >> n >> v, s = 1, t = n << 1;
   for (int i = 1; i <= n; i++) {
-    cin >> str;
-    encode[i] = str, decode[str] = i;
+    cin >> str[i];
+    Map[str[i]] = i;
+    add (i, i + n, 1, 1);
   }
-  for (int i = 1; i <= m; i++) {
-    string str1, str2; cin >> str1 >> str2;
-    int x = decode[str1], y = decode[str2];
-    edge[x][y] = edge[y][x] = true;
-    if (x == 1) {
-      edge[0][y] = edge[y][0] = true;
-    } else if (y == 1) {
-      edge[0][x] = edge[x][0] = true;
+  add (s, s + n, 0, 1);
+  add (n, n + n, 0, 1);
+  for (int i = 1; i <= v; i++) {
+    cin >> str1 >> str2;
+    if (Map[str1] > Map[str2]) {
+      swap (str1, str2);
+    }
+    arr1[i] = Map[str1], arr2[i] = Map[str2];
+    add (Map[str1] + n, Map[str2], 0, 1);
+  }
+  int flow = 0, cost = 0;
+  while (SPFA ()) {
+    flow += change[t], cost += change[t] * dis[t];
+    for (int i = t; i != s; i = edge[road[i] ^ 1].to) {
+      edge[road[i]].tag -= change[t];
+      edge[road[i] ^ 1].tag += change[t];
     }
   }
-  DFS1 (n, n);
-  if (!dp[n][n]) {
+  if (cost == 2) {
+    cout << 2 << '\n';
+    cout << str[1] << '\n' << str[n] << '\n' << str[1] << '\n';
+  } else if (flow == 2) {
+    cout << cost << '\n';
+    for (int i = 1; i <= v; i++) {
+      for (int j = head[arr1[i] + n]; j; j = edge[j].next) {
+        if (edge[j].to == arr2[i] && !edge[j].tag) {
+          add (arr1[i], arr2[i]), add (arr2[i], arr1[i]);
+        }
+      }
+    }
+    DFS (s);
+    for (int i = 1; i <= top; i++) {
+      cout << str[sta[i]] << '\n';
+    }
+    cout << str[1] << '\n';
+  } else {
     cout << "No Solution" << '\n';
-    return 0;
   }
-  cout << dp[n][n] << '\n';
-  for (int i = 1; i < n; i++) {
-    if (dp[i][n] == dp[n][n] - 1) {
-      DFS2 (i, n); break;
-    }
-  }
-  sort (arr1 + 1, arr1 + tot + 1), sort (arr2 + 1, arr2 + tot + 1);
-  int size1 = unique (arr1 + 1, arr1 + tot + 1) - arr1 - 1, size2 = unique (arr2 + 1, arr2 + tot + 1) - arr2 - 1;
-  cout << encode[1] << '\n';
-  for (int i = 1; i <= size1; i++) {
-    if (arr1[i] > 1) {
-      cout << encode[arr1[i]] << '\n';
-    }
-  }
-  for (int i = size2; i; i--) {
-    if (arr2[i] > 1) {
-      cout << encode[arr2[i]] << '\n';
-    }
-  }
-  cout << encode[1] << '\n';
   return 0;
 }
