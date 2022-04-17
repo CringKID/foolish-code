@@ -1,26 +1,92 @@
-#include<bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+#include <stack>
 
 using namespace std;
+using ll = long long;
+using Pii = pair <int, int>;
+using Pll = pair <ll, ll>;
+const int kMaxN = 1e4 + 5, kMod = 1e9 + 7, kInf = 1e9;
 
-const int maxn=2e3+5;
-
-int n,Element,Sta1[maxn],Top1,Sta2[maxn],Top2,Base=1;
-string Ans;
-
-int main(){
-    scanf("%d",&n);
-    for(int k=1;k<=n;k++){
-        scanf("%d",&Element);
-        if(Element==Base){Base++,Ans+="a b ";continue;}
-
-        while(Sta1[Top1]==Base||Sta2[Top2]==Base){if(Sta1[Top1]==Base) Ans+="b ",Top1--;if(Sta2[Top2]==Base) Ans+="d ",Top2--;Base++;}
-        if(Top1&&Sta1[Top1]==Element+1) Sta1[++Top1]=Element,Ans+="a ";
-        else if(Top2&&Sta2[Top2]==Element+1) Sta2[++Top2]=Element,Ans+="c ";
-        else if(Element<Sta1[Top1]||Top1==0) Sta1[++Top1]=Element,Ans+="a ";
-        else if(Element>Sta1[Top1]){if(Element>Sta2[Top2]&&!(Sta2[Top2]==0)) return puts("0"),0;Sta2[++Top2]=Element,Ans+="c ";}
+Pii P[kMaxN];
+stack <int> sta1, sta2;
+int head[kMaxN], tot, arr[kMaxN], n, mmin[kMaxN], val[kMaxN], ans[kMaxN], t;
+void add (int from, int to) {
+  P[++tot] = {to, head[from]}, head[from] = tot;
+}
+bool DFS (int x) {
+  if (val[x] == -1) {
+    val[x] = 0;
+  }
+  for (int i = head[x]; i; i = P[i].second) {
+    int to = P[i].first;
+    if (val[to] == -1) {
+      val[to] = val[x] ^ 1;
+      if (!DFS (to)) {
+        return false;
+      }
+    } else if (val[to] == val[x]) {
+      return false;
     }
+  }
+  return true;
+}
+//#define contest
+int main () {
+  ios :: sync_with_stdio (false);
+  cin.tie (0), cout.tie (0);
+#ifdef contest
+  freopen (, , stdin);
+  freopen (, , stdout);
+#endif
 
-    while(Sta1[Top1]==Base||Sta2[Top2]==Base){if(Sta1[Top1]==Base) Ans+='b ',Top1--;if(Sta2[Top2]==Base) Ans+='d ',Top2--;Base++;}
-
-    return printf("%s\n",Ans.c_str())&0;
+  memset (val, -1, sizeof (val));
+  cin >> n, mmin[n + 1] = 0x3f3f3f3f;
+  for (int i = 1; i <= n; i++) {
+    cin >> arr[i];
+  }
+  for (int i = n; i; i--) {
+    mmin[i] = min (mmin[i + 1], arr[i]);
+  }
+  for (int i = 1; i < n; i++) {
+    for (int j = i + 1; j <= n; j++) {
+      if (arr[i] < arr[j] && arr[i] > mmin[j + 1]) {
+        add (j, i), add (i, j);
+      }
+    }
+  }
+  for (int i = 1; i <= n; i++) {
+    if (val[i] == -1) {
+      if (!DFS (i)) {
+        cout << 0 << '\n';
+        return 0;
+      }
+    }
+  }
+  for (int i = 1, now = 1; true; ) {
+    if (now > n) {
+      break;
+    }
+    if (!val[i] && (sta1.empty () || sta1.top () > arr[i])) {
+      sta1.push (arr[i]), ans[++t] = 1, i++;
+      continue;
+    }
+    if (!sta1.empty () && sta1.top () == now) {
+      ans[++t] = 2, sta1.pop (), now++;
+      continue;
+    }
+    if (val[i] == 1 && (sta2.empty () || sta2.top () > arr[i])) {
+      sta2.push (arr[i]), ans[++t] = 3, i++;
+      continue;
+    }
+    if (!sta2.empty () && sta2.top () == now) {
+      sta2.pop (), ans[++t] = 4, now++;
+      continue;
+    }
+  }
+  for (int i = 1; i <= t; i++) {
+    cout << char (ans[i] + 'a' - 1) << ' ';
+  }
+  return 0;
 }

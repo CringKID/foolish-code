@@ -4,6 +4,7 @@
 #include <deque>
 #include <list>
 
+using namespace std;
 using ll = long long;
 using Pii = pair <int, int>;
 using Pll = pair <ll, ll>;

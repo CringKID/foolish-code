@@ -8,15 +8,15 @@ using namespace std;
 const int kMaxN = 1e3 + 5, kMaxM = 1e6 + 5, kInf = 0x7fffffff;
 
 queue <int> que;
-int n, v, s, t, cnt = 1, dis[kMaxN], change[kMaxN], head[kMaxN], road[kMaxN], arr1[kMaxN], arr2[kMaxN], nhead[kMaxN], sta[kMaxN], top;
+int n, v, s, t, cnt = 1, dis[kMaxN], Flow[kMaxN], head[kMaxN], road[kMaxN], arr1[kMaxN], arr2[kMaxN], nhead[kMaxN], sta[kMaxN], top;
 struct Edge {
-  int to, dist, next, tag;
+  int to, dist, next, flow;
 } edge[kMaxM];
 map <string, int> Map;
 string str[kMaxN], str1, str2;
 bool vis[kMaxN];
-void add (int from, int to, int dist, int tag) {
-  edge[++cnt] = {to, dist, head[from], tag};
+void add (int from, int to, int dist, int flow) {
+  edge[++cnt] = {to, dist, head[from], flow};
   head[from] = cnt;
   edge[++cnt] = {from, -dist, head[to], 0};
   head[to] = cnt;
@@ -27,16 +27,16 @@ void add (int from, int to) {
 }
 bool SPFA () {
   for (int i = 1; i <= n << 1; i++) {
-    dis[i] = -kInf, change[i] = kInf;
+    dis[i] = -kInf, Flow[i] = kInf;
   }
   dis[s] = 0, que.push (s);
   while (!que.empty ()) {
     int from = que.front (); que.pop (), vis[from] = false;
     for (int i = head[from]; i; i = edge[i].next) {
       int to = edge[i].to;
-      if (dis[to] < dis[from] + edge[i].dist && edge[i].tag > 0) {
-        dis[to] = dis[from] = edge[i].dist;
-        change[to] = min (change[from], edge[i].tag);
+      if (dis[to] < dis[from] + edge[i].dist && edge[i].flow > 0) {
+        dis[to] = dis[from] + edge[i].dist;
+        Flow[to] = min (Flow[from], edge[i].flow);
         road[to] = i;
         if (!vis[to]) {
           vis[to] = true, que.push (to);
@@ -44,7 +44,7 @@ bool SPFA () {
       }
     }
   }
-  return change[t] != kInf;
+  return Flow[t] != kInf;
 }
 void DFS (int x) {
   sta[++top] = x, vis[x] = true;
@@ -77,10 +77,10 @@ int main () {
   }
   int flow = 0, cost = 0;
   while (SPFA ()) {
-    flow += change[t], cost += change[t] * dis[t];
+    flow += Flow[t], cost += Flow[t] * dis[t];
     for (int i = t; i != s; i = edge[road[i] ^ 1].to) {
-      edge[road[i]].tag -= change[t];
-      edge[road[i] ^ 1].tag += change[t];
+      edge[road[i]].flow -= Flow[t];
+      edge[road[i] ^ 1].flow += Flow[t];
     }
   }
   if (cost == 2) {
@@ -90,7 +90,7 @@ int main () {
     cout << cost << '\n';
     for (int i = 1; i <= v; i++) {
       for (int j = head[arr1[i] + n]; j; j = edge[j].next) {
-        if (edge[j].to == arr2[i] && !edge[j].tag) {
+        if (edge[j].to == arr2[i] && !edge[j].flow) {
           add (arr1[i], arr2[i]), add (arr2[i], arr1[i]);
         }
       }
@@ -101,7 +101,7 @@ int main () {
     }
     cout << str[1] << '\n';
   } else {
-    cout << "No Solution" << '\n';
+    cout << "No Solution!" << '\n';
   }
   return 0;
 }
