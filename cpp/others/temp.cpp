@@ -1,31 +1,67 @@
 #include <bits/stdc++.h>
-#define P pair<ll,ll>
-#define F first
-#define S second
-typedef long long ll;
-using namespace std;
-int n, m, x;
-ll dp[5002][5002], ans = -1, a[5002];
-deque< P > q[5002];
+
+template <class T>
+inline void read(T &x) {
+  x = 0;
+  int f = 0;
+  char ch = getchar();
+  while (!isdigit(ch)) {
+    f |= ch == '-';
+    ch = getchar();
+  }
+  while (isdigit(ch)) {
+    x = (x << 1) + (x << 3) + (ch ^ 48);
+    ch = getchar();
+  }
+  x = f ? -x : x;
+  return;
+}
+
+typedef unsigned long long uLL;
+typedef long long LL;
+
+struct Node {
+  int pos;
+  LL dis;
+  friend bool operator<(const Node &a, const Node &b) {
+    return a.dis > b.dis;
+  }
+};
+
+struct Edge {
+  int to, w;
+};
+
+std::priority_queue<Node> q;
+std::vector<Edge> g[200010];
+LL h[200010], d[200010];
+LL ans;
+int n, m;
+bool vis[200010];
+
 int main() {
-    scanf("%d%d%d",&n,&m,&x);
-    for(int i = 1; i <= n; ++i) scanf("%lld",&a[i]);
-    memset(dp,-1,sizeof(dp));
-    dp[0][0] =  0;
-    q[0].push_back(P(0,0));
-    for(int i = 1; i <= n; ++i) {
-        for(int j = 0; j <= i && j <= x; ++j) {
-            while(!q[j].empty() && q[j].front().S < i-m) q[j].pop_front();
-        }
-        for(int j = 1; j <= i && j <= x; ++j) {
-            if(!q[j-1].empty() && q[j-1].front().F != -1)  dp[i][j] = q[j-1].front().F + a[i];
-        }
-        for(int j = 0; j <= i && j <= x; ++j) {
-            while(!q[j].empty() && dp[i][j]>=q[j].back().F) q[j].pop_back();
-            if(dp[i][j] != -1) q[j].push_back(P(dp[i][j],i));
-        }
- 
-        if(n-i < m) ans = max(ans, dp[i][x]);
+  read(n), read(m);
+  for (int i = 1; i <= n; ++i) read(h[i]), d[i] = 1e18;
+  for (int i = 1, u, v; i <= m; ++i) {
+    read(u), read(v);
+    g[u].push_back((Edge){v, std::max(h[v] - h[u], 0LL)});
+    g[v].push_back((Edge){u, std::max(h[u] - h[v], 0LL)});
+  }
+  q.push((Node){1, 0});
+  d[1] = 0;
+  while (!q.empty()) {
+    Node now = q.top();
+    q.pop();
+    if (vis[now.pos]) continue;
+    vis[now.pos] = true;
+    for (auto i : g[now.pos]) {
+      if (d[i.to] > d[now.pos] + i.w) {
+        d[i.to] = d[now.pos] + i.w;
+        q.push((Node){i.to, d[i.to]});
+      }
     }
-    printf("%lld\n",ans);
+  }
+  for (int i = 1; i <= n; ++i) ans = std::max(ans, h[1] - h[i] - d[i]);
+  printf("%lld\n", ans);
+  return 0;
 }

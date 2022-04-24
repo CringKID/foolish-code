@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <atcoder/modint.hpp>
 
 using namespace std;
 using ll = long long;
@@ -16,6 +17,6 @@ int main () {
   freopen (, , stdout);
 #endif
 
-  
+  cout << (10 ^ (10 & -10)) << '\n';
   return 0;
 }

@@ -18,7 +18,7 @@ int main () {
           Sleep (rand () % 34 + 67);// cps 10 ~ 15    time 67 ~ 100
           cout << (double (now - start) / CLOCKS_PER_SEC) << '\n';
         }
-      }
+    }
     }
   }
   return 0;

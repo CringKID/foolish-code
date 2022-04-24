@@ -1,38 +1,44 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+
 using namespace std;
-int n, m, tree[500005];
-int lowbit(int x) {
-  return x & -x;
-}
-void gx(int x, int y) {
-  while (x <= n) {
-    tree[x] += y;
-    x += lowbit(x);
+using ll = long long;
+using Pii = pair <int, int>;
+using Pll = pair <ll, ll>;
+const int kMaxN = 5e5 + 5, kMod = 1e9 + 7, kInf = 1e9;
+
+int tree[kMaxN], n, m;
+void update (int x, int val) {
+  for (int i = x; i <= n; tree[i] += val, i += i & -i) {
   }
-  return;
 }
-int cx(int x) {
-  int cnt = 0;
-  while (x > 0) {
-    cnt += tree[x];
-    x -= lowbit(x);
+int query (int x) {
+  int rec = 0;
+  for (int i = x; i; rec += tree[i], i -= i & -i) {
   }
-  return cnt;
+  return rec;
 }
-int main() {
-  scanf("%d %d", &n, &m);
-  for (int i = 1; i <= n; i++) {
-    int temp;
-    scanf("%d", &temp);
-    gx(i, temp);
+//#define contest
+int main () {
+  ios :: sync_with_stdio (false);
+  cin.tie (0), cout.tie (0);
+#ifdef contest
+  freopen (, , stdin);
+  freopen (, , stdout);
+#endif
+
+  cin >> n >> m;
+  for (int i = 1, x; i <= n; i++) {
+    cin >> x;
+    update (i, x);
   }
-  for (int i = 0; i < m; i++) {
-    int temp, x, k;
-    scanf("%d %d %d", &temp, &x, &k);
-    if (temp == 1)
-      gx(x, k);
-    else
-      printf("%d\n", cx(k) - cx(x - 1));
+  for (int i = 1, opt, x, y; i <= m; i++) {
+    cin >> opt >> x >> y;
+    if (opt == 1) {
+      update (x, y);
+    } else {
+      cout << query (y) - query (x - 1) << '\n';
+    }
   }
   return 0;
 }
