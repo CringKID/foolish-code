@@ -1,63 +1,55 @@
-#include <iostream>
-#include <map>
-#include <queue>
-#include <vector>
+#include <bits/stdc++.h>
+
 using namespace std;
-const int MAX = 2e5 + 10;
-struct node {
-  int numA, numF;
-  bool operator<(const node &n) const {
-    if (this->numA == n.numA)
-      return this->numF < n.numF;
-    else
-      return this->numA < n.numA;
+
+using ll = long long;
+
+template <typename F>
+ll ternary_search(ll l, ll r, const F& f) {
+  while (r - l > 2) {
+    const ll ml = (l + r) / 2;
+    const ll mr = ml + 1;
+    if (f(ml) < f(mr)) {
+      l = ml;
+    } else {
+      r = mr;
+    }
   }
-};
-priority_queue<node, vector<node> > qu;
-map<int, int> maps, map1;
+
+  return f(l + 1);
+}
+
+void solve() {
+  int n, m;
+  cin >> n >> m;
+  ll res = numeric_limits<ll>::min();
+  ll a = 0, b = 0;
+  for (int i = 1; i <= n; i++) {
+    ll x, y;
+    cin >> x >> y;
+    const auto f = [&](const ll k) {
+      return a + b * k + k * (k + 1) / 2 * x;
+    };
+
+    if (x > 0) {
+      res = max({res, f(1), f(y)});
+    } else {
+      res = max(res, ternary_search(0, y + 1, f));
+    }
+    a = f(y);
+    b += x * y;
+  }
+
+  cout << res << "\n";
+}
+
 int main() {
-  int q;
-  cin >> q;
-  while (q--) {
-    int n;
-    cin >> n;
-    int aa, f;
+  ios::sync_with_stdio(false);
+  cin.tie(0);
 
-    for (int i = 0; i < n; i++) {
-      cin >> aa >> f;
-      maps[aa]++;
-      map1[aa] += f;
-    }
+  int test;
+  cin >> test;
+  for (int i = 0; i < test; ++i) solve();
 
-    map<int, int>::iterator it;
-    for (it = maps.begin(); it != maps.end(); it++) {
-      node now = {it->second, map1[it->first]};
-      qu.push(now);
-    }
-    int flag = -1;
-    int ans1 = 0, ans2 = 0;
-    while (1) {
-      if (qu.empty() || flag == 0) break;
-      int sum = qu.top().numA;
-      int cnt = qu.top().numF;
-      qu.pop();
-      if (flag != sum) {
-        flag = sum;
-        ans1 += sum;
-        ans2 += cnt;
-      } else {
-        if (sum == cnt) {
-          sum--;
-          cnt--;
-        } else
-          sum--;
-        qu.push({sum, cnt});
-      }
-    }
-    while (!qu.empty()) qu.pop();
-    maps.clear();
-    map1.clear();
-    cout << ans1 << " " << ans2 << endl;
-  }
   return 0;
 }

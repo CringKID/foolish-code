@@ -72,7 +72,18 @@
         "stdexcept": "cpp",
         "typeindex": "cpp",
         "rope": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "all": "cpp",
+        "fenwicktree": "cpp",
+        "maxflow": "cpp",
+        "convolution": "cpp",
+        "dsu": "cpp",
+        "lazysegtree": "cpp",
+        "math": "cpp",
+        "mincostflow": "cpp",
+        "scc": "cpp",
+        "segtree": "cpp",
+        "twosat": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

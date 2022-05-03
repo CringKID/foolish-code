@@ -23,8 +23,9 @@ int main () {
     if (n != 1) {
       if (a != 1) {
         while (cnt <= n) {
-          if ((n - cnt) % b == 0) {
-            flag = 0; break;
+          if (!((n - cnt) % b)) {
+            flag = 0; 
+            break;
           }
           cnt = cnt * a;
         }
