@@ -1,0 +1,1 @@
+{"name":"Local: KMP","url":"d:\\foolish-code\\KMP.cpp","tests":[{"id":1651890693242,"input":"ABABABC\nABA","output":"1\n3\n0 0 1"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\KMP.cpp","group":"local","local":true}

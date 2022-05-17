@@ -1,0 +1,1 @@
+{"name":"Local: FHQ-Treap interval","url":"d:\\foolish-code\\FHQ-Treap interval.cpp","tests":[{"id":1652260487069,"input":"5 3\n1 3\n1 3\n1 4","output":"4 3 2 1 5"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\FHQ-Treap interval.cpp","group":"local","local":true}

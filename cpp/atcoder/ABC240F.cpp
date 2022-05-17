@@ -10,9 +10,9 @@ int main () {
   cin.tie (0), cout.tie (0);
 
   int test; cin >> test;
-  for (int i = 0; i < test; ++i) {
+  for (int i = 0; i < test; i++) {
     int n, m; cin >> n >> m;
-    ll res = LLONG_MIN, a = 0, b = 0;
+    ll res = LLONG_MIN, a = 0, b = 0;   
     for (int i = 1; i <= n; i++) {
       ll x, y; cin >> x >> y;
       const auto func = [&](const ll k) {

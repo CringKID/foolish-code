@@ -1,0 +1,1 @@
+{"name":"Local: P4181","url":"d:\\foolish-code\\cpp\\luogu\\P4xxx\\P4181.cpp","tests":[{"id":1652411021037,"input":"5 3 4\n6\n2\n4\n7\n1\n10 25\n2 10\n15 15\n250\n80\n100\n40","output":"725"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\cpp\\luogu\\P4xxx\\P4181.cpp","group":"local","local":true}

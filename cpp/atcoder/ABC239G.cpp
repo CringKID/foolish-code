@@ -1,44 +1,42 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+#include <atcoder/all>
+
 using namespace std;
-#include <atcoder/maxflow>
 using namespace atcoder;
-
 using ll = long long;
-const ll INF = 1001001001001001001LL;
+using mint = modint998244353;
+const int kMaxN = 1e7 + 5, kMod = 998244353;
 
-#define rep(i, l, r) for (auto i = (l); i != (r); i++)
+mint fac[kMaxN], nfac[kMaxN], ans;
+mint C (int n, int m) {
+  return ((n - m >= 0 && n >= 0 && m >= 0) ? fac[n] * nfac[m] * nfac[n - m] : 0);
+}
+mint solve (int n, int x) {
+  return (((n + x) & 1) ? 0 : C (n, (n + x) / 2));
+}
+mint solve (int n, int x, int y) {
+  return solve (n, x + y) * solve (n, x - y);
+}
+int main () {
+  ios :: sync_with_stdio (false);
+  cin.tie (0), cout.tie (0);
 
-int main() {
-  int N, M;
-  cin >> N >> M;
-  // 入頂点を N+i 、出頂点を i としている
-  mf_graph<ll> g(N * 2);
-
-  rep(i, 0, M) {
-    int a, b;
-    cin >> a >> b;
-    a--, b--;
-    g.add_edge(N + a, b, INF);
-    g.add_edge(N + b, a, INF);
+  int n, x, y, z; cin >> n >> x >> y >> z;
+  fac[0] = 1, nfac[1] = 1;
+  for (int i = 1; i <= n; i++) {
+    fac[i] = fac[i - 1] * i;
   }
-
-  vector<ll> c(N);
-  rep(i, 0, N) cin >> c[i];
-  c[0] = c[N - 1] = INF;
-
-  rep(i, 0, N)
-      g.add_edge(i, N + i, c[i]);
-
-  ll mincut = g.flow(N, N - 1);  // 提出コード上では 0 から N + (N - 1) となっていますが、（一応それでも合いますが）頂点 1 の入頂点から頂点 N の出頂点へと考えるとこちらの方が正しいです
-  auto reachable = g.min_cut(0);
-
-  vector<int> ans;
-  rep(i, 0, N) if (reachable[i] && !reachable[N + i])
-      ans.push_back(i + 1);
-
-  cout << mincut << endl;
-  cout << ans.size() << endl;
-  rep(i, 0, ans.size())
-          cout
-      << ans[i] << " \n"[i == ans.size() - 1];
+  for (int i = 2; i <= n; i++) {
+    nfac[i] = kMod - kMod / i * nfac[kMod % i];
+  }
+  nfac[0] = 1;
+  for (int i = 1; i <= n; i++) {
+    nfac[i] = nfac[i - 1] * nfac[i];
+  }
+  for (int i = 0; i <= n; i++) {
+    ans += solve (i, x) * C (n, i) * solve (n - i, y, z);
+  }
+  cout << ans.val () << '\n';
+  return 0;
 }

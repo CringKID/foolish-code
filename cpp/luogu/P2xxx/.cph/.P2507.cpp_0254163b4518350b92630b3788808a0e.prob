@@ -1,0 +1,1 @@
+{"name":"Local: P2507","url":"d:\\foolish-code\\cpp\\luogu\\P2xxx\\P2507.cpp","tests":[{"id":1652690687516,"input":"3\n3 65\n45 10\n60 25","output":"32"},{"id":1652690694548,"input":"3\n5 5\n6 7\n8 8","output":"5"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\foolish-code\\cpp\\luogu\\P2xxx\\P2507.cpp","group":"local","local":true}

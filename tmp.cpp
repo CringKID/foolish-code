@@ -1,13 +1,46 @@
-#include <iostream>
-#include <algorithm>
-
-using namespace std;
-
-int n, T;
-int main () {
-  for (cin >> T; T; T--) {
-    cin >> n;
-    cout << (n % 3 == 1 ? "NO" : "YES") << '\n';
-  }
-  return 0;
+#include<bits/stdc++.h>
+#include<Windows.h>
+#define sound Beep 
+using namespace std; 
+int ssound[3][8]={{0,262,294,330,349,392,440,494},{0,523,587,659,698,784,880,988},{0,1047,1175,1319,1397,1568,1760,1967}};
+void s(int n,int p,int t){
+    sound(ssound[p][n],t*125);
+}
+void S(int n){
+    s((n-1)%7+1,(n-1)/7,2);
+}
+void ss(int n,int t){
+    s((n-1)%7+1,(n-1)/7,t);
+}
+void wait(double x){
+    Sleep(x*2000);
+}
+int main(void){
+    for(int i=1;i<=2;i++){
+        S(2),S(3),S(4),S(5),S(6),wait(0.25);
+        S(9),S(8),S(6),wait(0.25);
+        S(2),wait(0.25);
+        S(6),S(5),S(4),S(3),S(2),S(3),S(4),S(5),S(6),wait(0.25);
+        S(5),S(4),S(3),S(2),S(3),S(4),S(3),S(2),S(1),S(3),S(2),S(3),S(4),S(5),S(6),wait(0.25);
+        S(9),S(8),S(6),wait(0.25);
+        S(2),wait(0.25);
+        S(6),S(5),S(4),S(3),S(2),S(3),S(4),S(5),S(6),wait(0.25);
+        S(5),S(4),ss(3,4),ss(4,4),ss(5,4),ss(6,4);
+    }
+    S(8),S(9),S(6),S(5),S(6),wait(0.25);
+    S(5),S(6),S(8),S(9),S(6),S(5),S(6),wait(0.25);
+    S(5),S(6),S(5),S(4),S(3),S(1),S(2),wait(0.25);
+    S(1),S(2),S(3),S(4),S(5),S(6),S(2),wait(0.25);
+    S(6),S(8),S(8),S(9),S(6),S(5),S(6),wait(0.25);
+    S(5),S(6),S(8),S(9),S(6),S(5),S(6),wait(0.25);
+    S(5),S(6),S(5),S(4),S(3),S(1),S(2),wait(0.25);
+    S(1),S(2),S(3),S(4),S(5),S(6),S(2),wait(0.25);
+    S(6),S(8),S(8),S(9),S(6),S(5),S(6),wait(0.25);
+    S(5),S(6),S(8),S(9),S(6),S(5),S(6),wait(0.25);
+    S(5),S(6),S(5),S(4),S(3),S(1),S(2),wait(0.25);
+    S(1),S(2),S(3),S(4),S(5),S(6),S(2),wait(0.25);
+    S(6),S(8),S(8),S(9),S(6),S(5),S(6),wait(0.25);
+    S(5),S(6),S(8),S(9),S(6),S(5),S(6),wait(0.25);
+    S(9),S(10),S(11),S(10),S(9),S(8),S(6),wait(0.25);
+    S(5),S(6),S(5),S(4),S(3),S(1),S(2),wait(0.25);
 }
